@@ -14,7 +14,7 @@ static int _capacity;
 void initialize() {
   _size = 0;
   _capacity = INITIAL_SIZE;
-  arr = (int*) malloc(INITIAL_SIZE * sizeof(int));
+  arr = calloc(INITIAL_SIZE, sizeof(int));
 
   printf("initialized array\nsize: %d\ncapacity: %d\n", _size, _capacity);
 }
@@ -40,13 +40,50 @@ int at(int index) {
   }
 }
 
+void resize(int new_size) {
+  int *newarr = calloc(new_size, sizeof(int));
+
+  for (int i = 0; i < _size; i++) {
+    *(newarr + i * sizeof(int)) = *(arr + i * sizeof(int));
+  }
+
+  _capacity = new_size;
+
+  free(arr);
+  arr = newarr; 
+}
+
 int push(int item) {
   if (_size < _capacity) {
     *(arr + _size * sizeof(int)) = item;
     _size++;
     return _size;
   } else {
-    printf("placeholder for resize\n");
-    return -1;
+    resize(_capacity * RESIZE_FACTOR);
+    return push(item);
+  }
+}
+
+int insert(int index, int item) {
+  if (index < 0 || index >= _capacity) {
+    printf("error: index out of bounds\n");
+    return -1;   
+  } else {
+    if (_size == _capacity) {
+      resize(_capacity * RESIZE_FACTOR);
+    }
+
+    printf("---\n");
+
+    for (int j = _size - 1; j >= index; j--) {
+      *(arr + (j + 1) * sizeof(int)) = *(arr + j * sizeof(int));
+      printf("arr[%d]: %d\n", j + 1, *(arr + (j + 1) * sizeof(int)));
+    }
+
+    printf("---\n");
+
+    *(arr + index * sizeof(int)) = item;
+    _size++;
+    return 1;
   }
 }

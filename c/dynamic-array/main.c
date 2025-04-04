@@ -4,11 +4,16 @@
 void main() {
   initialize();
 
-  for (int i = 0; i < 14; i++) {
-    push(i * 3);
+  printf("\n");
+
+  for (int i = 0; i < 10; i++) {
+    push(i * i);
+    printf("arr[%d]: %d\n", i, at(i));
   }
 
-  for (int j = 0; j < 14; j++) {
+  insert(3, -1);
+
+  for (int j = 0; j < 11; j++) {
     printf("arr[%d]: %d\n", j, at(j));
   }
 }
