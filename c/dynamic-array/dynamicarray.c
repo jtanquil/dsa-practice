@@ -57,19 +57,19 @@ void resize(int new_size) {
   arr = newarr; 
 }
 
-int push(int item) {
-  if (_size < _capacity) {
-    *(arr + _size) = item;
-    _size++;
-    return _size;
-  } else {
-    resize(_capacity * RESIZE_FACTOR);
-    return push(item);
-  }
-}
+// int push(int item) {
+//   if (_size < _capacity) {
+//     *(arr + _size) = item;
+//     _size++;
+//     return _size;
+//   } else {
+//     resize(_capacity * RESIZE_FACTOR);
+//     return push(item);
+//   }
+// }
 
 int insert(int index, int item) {
-  if (index < 0 || index >= _size) {
+  if (index < 0 || index > _size) {
     printf("error: index out of bounds\n");
     return NULL;
   } else {
@@ -77,18 +77,20 @@ int insert(int index, int item) {
       resize(_capacity * RESIZE_FACTOR);
     }
 
-    if (_size == index) {
-      return push(item);
-    } else {
+    if (index < _size) {
       for (int j = _size - 1; j >= index; j--) {
         *(arr + j + 1) = *(arr + j);
       }
-
-      *(arr + index) = item;
-      _size++;
-      return _size;
     }
+
+    *(arr + index) = item;
+    _size++;
+    return _size;
   }
+}
+
+int push(int item) {
+  return insert(_size, item);
 }
 
 int prepend(int item) {
@@ -96,14 +98,18 @@ int prepend(int item) {
 }
 
 int delete(int index) {
-  if (index < 0 || index >= _capacity) {
+  if (index < 0 || index >= _size) {
     printf("error: index out of bounds\n");
     return NULL;
   } else {
     int val = *(arr + index);
 
-    for (int i = index; i < _size; i++) {
-      *(arr + i) = *(arr + i + 1);
+    if (index == _size - 1) {
+      *(arr + index) = 0;
+    } else {
+      for (int i = index; i < _size; i++) {
+        *(arr + i) = *(arr + i + 1);
+      }
     }
 
     _size--;
@@ -117,7 +123,7 @@ int delete(int index) {
 }
 
 int pop() {
-  return delete(0);
+  return delete(_size - 1);
 }
 
 int find(int item) {

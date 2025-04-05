@@ -35,4 +35,9 @@ void main() {
 
   printf("find 25 at index %d\n", find(25));
   printf("find 420 at index %d\n", find(420));
+
+  printf("---\n");
+
+  printf("delete at index 3: %d\n", delete(3));
+  printf("pop: %d\n", pop());
 }
