@@ -4,16 +4,35 @@
 void main() {
   initialize();
 
-  printf("\n");
+  printf("---\n");
 
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 17; i++) {
     push(i * i);
     printf("arr[%d]: %d\n", i, at(i));
   }
 
-  insert(3, -1);
+  printf("---\n");
 
-  for (int j = 0; j < 11; j++) {
+  insert(15, -2);
+  prepend(3);
+
+  for (int j = 0; j < 19; j++) {
     printf("arr[%d]: %d\n", j, at(j));
   }
+
+  printf("---\n");
+
+  printf("delete: %d\n", delete(15));
+  printf("pop: %d\n", pop());
+
+  printf("---\n");
+
+  for (int j = 0; j < 17; j++) {
+    printf("arr[%d]: %d\n", j, at(j));
+  }
+
+  printf("---\n");
+
+  printf("find 25 at index %d\n", find(25));
+  printf("find 420 at index %d\n", find(420));
 }
