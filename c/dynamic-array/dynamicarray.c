@@ -44,6 +44,16 @@ int at(int index) {
   }
 }
 
+int update(int index, int item) {
+  if (index >= 0 && index < _size) {
+    *(arr + index) = item;
+    return 1;
+  } else {
+    printf("error: index %d is out of bounds\n", index);
+    return -1;
+  }
+}
+
 void resize(int new_size) {
   int *newarr = calloc(new_size, sizeof(int));
 
@@ -56,17 +66,6 @@ void resize(int new_size) {
   free(arr);
   arr = newarr; 
 }
-
-// int push(int item) {
-//   if (_size < _capacity) {
-//     *(arr + _size) = item;
-//     _size++;
-//     return _size;
-//   } else {
-//     resize(_capacity * RESIZE_FACTOR);
-//     return push(item);
-//   }
-// }
 
 int insert(int index, int item) {
   if (index < 0 || index > _size) {
@@ -134,4 +133,12 @@ int find(int item) {
   }
 
   return -1;
+}
+
+void _remove(int item) {
+  int index;
+
+  while ((index = find(item)) != -1) {
+    delete(index);
+  }
 }
