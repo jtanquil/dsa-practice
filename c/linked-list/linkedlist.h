@@ -1,0 +1,10 @@
+int size(void);
+int empty(void);
+int front(void);
+int back(void);
+void push_front(int);
+void push_back(int);
+int value_at(int);
+int pop_front(void);
+int pop_back(void);
+int insert(int, int);
