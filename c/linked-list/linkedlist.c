@@ -40,14 +40,8 @@ int front() {
 }
 
 int back() {
-  if (head != NULL) {
-    struct lnode *current_node = head;
-
-    while (current_node->next != NULL) {
-      current_node = current_node->next;
-    }
-
-    return current_node->item;
+  if (tail != NULL) {
+    return tail->item;
   } else {
     printf("error: list is empty\n");
     return NULL;
@@ -238,17 +232,11 @@ int remove_value(int item) {
       return NULL;
     } else {
       erase(index);
-      printf("element %d removed at index %d, size: %d\n", item, index, _size);
       return index;
     }
   }
 }
 
-// keep track of a current = head
-// while current->next != NULL,
-// keep track of next = current->next
-// set current->next = current
-// go to next 
 void reverse() {
   if (_size == 0) {
     printf("error: list is empty\n");
@@ -258,17 +246,17 @@ void reverse() {
 
     current->next = NULL;
 
-    while (next != NULL) {
-      if (next->next != NULL) {
-        struct lnode *next_next = next->next;
-        next->next = current;
-        current = next;
-        next = next_next;
-      } else {
-        next->next = current;
-        break;
-      }
+    // go through the list, changing the next ptr to the previous element
+    // until reaching the tail
+    while (next != tail) {
+      struct lnode *next_next = next->next;
+      next->next = current;
+      current = next;
+      next = next_next;
     }
+
+    // change the tail's next ptr
+    next->next = current;
 
     // finally, swap the head and tail
     struct lnode *swap = head;
