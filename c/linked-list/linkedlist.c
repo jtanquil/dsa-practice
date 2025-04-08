@@ -128,6 +128,15 @@ int value_at(int index) {
   }
 }
 
+int value_n_from_end(int index) {
+  if (index < 0 || index >= _size) {
+    printf("error: index %d is out of bounds\n", index);
+    return NULL;
+  } else {
+    return value_at(_size - 1 - index);
+  }
+}
+
 int pop_front() {
   if (_size == 0) {
     printf("error: list is empty\n");
@@ -177,5 +186,93 @@ int pop_back() {
     free(old_tail);
     _size--;
     return item;
+  }
+}
+
+void erase(int index) {
+  if (index == 0) {
+    pop_front();
+  } else if (index == _size - 1) {
+    pop_back();
+  } else if (index < 0 || index >= _size) {
+    printf("error: index %d is out of bounds\n", index);
+  } else {
+    // find the node before the given index
+    struct lnode *prev_node = head;
+
+    for (int i = 0; i < index - 1; i++) {
+      prev_node = prev_node->next;
+    }
+
+    // this case only runs if there are at least three elements,
+    // so prev_node->next != NULL
+    struct lnode *node_to_erase = prev_node->next;
+
+    // update the tail if necessary
+    if (prev_node->next == tail) {
+      tail = prev_node;
+    }
+
+    prev_node->next = prev_node->next->next;
+
+    free(node_to_erase);
+    _size--;
+  }
+}
+
+int remove_value(int item) {
+  if (_size == 0) {
+    printf("error: list is empty\n");
+    return NULL;
+  } else {
+    struct lnode *current_node = head;
+    int index = 0;
+
+    while (current_node != NULL && current_node->item != item) {
+      current_node = current_node->next;
+      index++;
+    }
+
+    if (current_node == NULL) {
+      printf("element %d not found, size: %d\n", item, _size);
+      return NULL;
+    } else {
+      erase(index);
+      printf("element %d removed at index %d, size: %d\n", item, index, _size);
+      return index;
+    }
+  }
+}
+
+// keep track of a current = head
+// while current->next != NULL,
+// keep track of next = current->next
+// set current->next = current
+// go to next 
+void reverse() {
+  if (_size == 0) {
+    printf("error: list is empty\n");
+  } else if (_size > 1) { // don't need to reverse the list if it has 1 element
+    struct lnode *current = head;
+    struct lnode *next = current->next;
+
+    current->next = NULL;
+
+    while (next != NULL) {
+      if (next->next != NULL) {
+        struct lnode *next_next = next->next;
+        next->next = current;
+        current = next;
+        next = next_next;
+      } else {
+        next->next = current;
+        break;
+      }
+    }
+
+    // finally, swap the head and tail
+    struct lnode *swap = head;
+    head = tail;
+    tail = swap;
   }
 }
