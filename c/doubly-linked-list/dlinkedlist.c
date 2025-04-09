@@ -110,24 +110,6 @@ int value_at(int index) {
       current_node = current_node->next;
     }
 
-    if (current_node->next == NULL) {
-      printf("error: current_node %d has a null next pointer\n", index);
-    }
-
-    if (current_node->prev == NULL) {
-      printf("error: current_node %d has a null prev pointer\n", index);
-    }
-
-    if ((current_node != sentinel->next && current_node != sentinel->prev)  && 
-        current_node->next == sentinel) {
-      printf("error: current_node %d's next ptr points to the sentinel\n", index);
-    }
-
-    if ((current_node != sentinel->next && current_node != sentinel->prev) &&
-        current_node->prev == sentinel) {
-      printf("error: current_node %d's prev ptr points to the sentinel\n", index);    
-    }
-
     return current_node->item;
   }
 }
@@ -266,6 +248,8 @@ void reverse() {
   } else if (_size > 1) { // don't need to do anything if the list has one element
     struct dlnode *current_node = sentinel;
     
+    // traverse through the sentinel and the list, swapping the next/prev 
+    // pointers of each node
     for (int i = 0; i <= _size; i++) {
       struct dlnode *swap = current_node->next;
       current_node->next = current_node->prev;
