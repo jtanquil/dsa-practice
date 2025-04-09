@@ -12,7 +12,6 @@ void push_back(int);
 int front(void);
 int back(void);
 int value_at(int);
-// to do
 void erase(int);
 int remove_value(int);
 int value_n_from_end(int);

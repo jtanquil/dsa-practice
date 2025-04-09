@@ -118,6 +118,16 @@ int value_at(int index) {
       printf("error: current_node %d has a null prev pointer\n", index);
     }
 
+    if ((current_node != sentinel->next && current_node != sentinel->prev)  && 
+        current_node->next == sentinel) {
+      printf("error: current_node %d's next ptr points to the sentinel\n", index);
+    }
+
+    if ((current_node != sentinel->next && current_node != sentinel->prev) &&
+        current_node->prev == sentinel) {
+      printf("error: current_node %d's prev ptr points to the sentinel\n", index);    
+    }
+
     return current_node->item;
   }
 }
@@ -201,7 +211,66 @@ void insert(int index, int item) {
   }
 }
 
-// to do
-void erase(int);
-int remove_value(int);
-void reverse(void);
+void erase(int index) {
+  if (index == 0) {
+    pop_front();
+  } else if (index == _size - 1) {
+    pop_back();
+  } else if (index < 0 || index >= _size) {
+    printf("error: index %d out of bounds\n", index);
+  } else {
+    struct dlnode *current_node = sentinel->next;
+
+    for (int i = 0; i < index; i++) {
+      current_node = current_node->next;
+    }
+
+    struct dlnode *previous_node = current_node->prev;
+    struct dlnode *next_node = current_node->next;
+
+    // splice the node out of the list
+    previous_node->next = next_node;
+    next_node->prev = previous_node;
+
+    free(current_node);
+    _size--;
+  }
+}
+
+int remove_value(int item) {
+  if (_size == 0) {
+    printf("error: list is empty\n");
+    return -1;
+  } else {
+    struct dlnode *current_node = sentinel->next;
+    int index = 0;
+
+    while (current_node != sentinel && current_node->item != item) {
+      current_node = current_node->next;
+      index++;
+    }
+
+    if (current_node == sentinel) {
+      printf("element %d not found\n", item);
+      return -1;
+    } else {
+      erase(index);
+      return index;
+    }
+  }
+}
+
+void reverse() {
+  if (_size == 0) {
+    printf("error: list is empty\n");
+  } else if (_size > 1) { // don't need to do anything if the list has one element
+    struct dlnode *current_node = sentinel;
+    
+    for (int i = 0; i <= _size; i++) {
+      struct dlnode *swap = current_node->next;
+      current_node->next = current_node->prev;
+      current_node->prev = swap;
+      current_node = current_node->next;
+    }
+  }
+}

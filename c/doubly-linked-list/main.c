@@ -22,11 +22,11 @@ void main() {
 
   printf("current size: %d\nempty: %d\n\n", size(), empty());
 
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0; i < 3; i++) {
     push_front(i * i);
   }
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 3; i++) {
     push_back(-i * i);
   }
 
@@ -43,7 +43,23 @@ void main() {
 
   insert(0, 100);
   insert(size(), 1000);
-  insert(3, -100);
+  insert(1, -100);
+
+  printall();
+
+  erase(0);
+  erase(size() - 1);
+  erase(2);
+
+  printall();
+
+  remove_value(0);
+  remove_value(0);
+  remove_value(0);
+
+  printall();
+
+  reverse();
 
   printall();
 }

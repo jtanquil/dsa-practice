@@ -228,7 +228,7 @@ int remove_value(int item) {
     }
 
     if (current_node == NULL) {
-      printf("element %d not found, size: %d\n", item, _size);
+      printf("element %d not found", item);
       return NULL;
     } else {
       erase(index);
