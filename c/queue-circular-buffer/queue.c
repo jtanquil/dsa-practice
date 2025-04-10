@@ -58,14 +58,12 @@ void enqueue(struct cbuffer *buf, int item) {
     (buf->write_index)++;
     (buf->size)++;
 
-    printf("enqueued first element %d\n", item);
   } else {
     if (buf->write_index != buf->read_index) {
       *(buf->buffer + buf->write_index) = item;
       buf->write_index = (buf->write_index + 1) % buf->capacity;
       (buf->size)++;
 
-      printf("enqueued %d. current write_index: %d, size: %d\n", item, buf->write_index, buf->size);
     } else {
       if (!buf->overwrite) {
         printf("buffer is full, cannot enqueue %d\n", item);
@@ -77,8 +75,6 @@ void enqueue(struct cbuffer *buf, int item) {
         *(buf->buffer + buf->write_index) = item;
         buf->write_index = (buf->write_index + 1) % buf->capacity;
         buf->read_index = (buf->read_index + 1) % buf->capacity;
-
-        printf("overwrote %d with %d. current write_index: %d, read_index: %d\n", old_value, item, buf->write_index, buf->read_index);
       }
     }
   }
@@ -97,4 +93,12 @@ int dequeue(struct cbuffer *buf) {
     (buf->size)--;
     return item;
   }
+}
+
+void print_buf(struct cbuffer *buf) {
+  for (int i = 0; i < buf->capacity; i++) {
+    printf("%d ", *(buf->buffer + i));
+  }
+
+  printf("\n");
 }

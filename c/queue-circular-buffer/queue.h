@@ -17,5 +17,6 @@ int size(struct cbuffer *);
 int capacity(struct cbuffer *);
 void enqueue(struct cbuffer *, int);
 int dequeue(struct cbuffer *);
+void print_buf(struct cbuffer *);
 
 #endif
