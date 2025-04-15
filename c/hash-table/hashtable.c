@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TABLE_SIZE 101
+#define TABLE_SIZE 13
 #define SEARCH_MODE 0
 #define INSERT_MODE 1
 
@@ -48,14 +48,14 @@ int is_not_target_node(struct node *current_node, int insert_mode) {
   }
 }
 
-// todo 4-15: implement flag for deleted objects so search will work
 int get_index(char *key, int insert_mode) {
   int index = hash(key, TABLE_SIZE);
   int iterations = 0;
   struct node *current_node = slots[index];
 
-  // probing operation: if the key is there or the space is empty, return the index
-  // otherwise, check the next index (mod the table size) and repeat
+  // probing operation: if the node's key doesn't match, move to the next node
+  // keep going until the key is found, or an empty node is found
+  // insert_mode flag used to determine whether deleted nodes are skipped
   while (is_not_target_node(current_node, insert_mode)) {
     if (current_node->key == key || iterations == TABLE_SIZE) {
       break; 
@@ -82,7 +82,7 @@ void add(char *key, char *value) {
     printf("error: hash table is full\n");
   } else {
     // overwrite the existing value, or insert the node
-    if (slots[index] == NULL) {
+    if (slots[index] == NULL || slots[index] == &deleted) {
       struct node *new_node = create_node(key, value);
       slots[index] = new_node;
     } else {
@@ -124,3 +124,21 @@ int _remove(char *key) {
     }
   }
 };
+
+void print_hash_table(int only_exists) {
+  printf("table:\n");
+
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    struct node *current_node = slots[i];
+
+    if (current_node == NULL && !only_exists) {
+      printf("[%d]: empty\n", i);
+    } else if (current_node == &deleted && !only_exists) {
+      printf("[%d]: deleted\n", i);
+    } else if (current_node != NULL && current_node != &deleted) {
+      printf("[%d]: { key: %s, value: %s }\n", i, current_node->key, current_node->value);
+    }
+  }
+  
+  printf("---\n");
+}

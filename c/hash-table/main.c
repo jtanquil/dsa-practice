@@ -1,15 +1,18 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "hashtable.h"
 
 void main() {
   initialize();
 
-  printf("testing: hash of %s is %d\n", "hi", hash("hi", 101));
+  printf("testing: hash of %s is %d\n", "hi", hash("hi", TABLE_SIZE));
 
   add("hi", "hello");
   add("hello", "what's up");
 
   printf("table['hi'] exists: %d, table['hello'] exists: %d\n", exists("hi"), exists("hello"));
+
+  print_hash_table(0);
 
   _remove("hi");
   
@@ -20,9 +23,7 @@ void main() {
   add("oellh", "everynyan");
   add("llohe", "test");
 
-  printf("table['hello']: %s\n", get("hello"));
-  printf("table['oellh']: %s\n", get("oellh"));
-  printf("table['llohe']: %s\n", get("llohe"));
+  print_hash_table(0);
 
   _remove("hello");
   printf("removed 'hello'\n");
@@ -31,10 +32,18 @@ void main() {
   printf("table['elloh'] exists: %d\n", exists("oellh"));
   printf("table['llohe'] exists: %d\n", exists("llohe"));
 
+  print_hash_table(0);
+
   _remove("llohe");
   printf("removed 'llohe'\n");
+
+  print_hash_table(0);
 
   printf("table['hello'] exists: %d\n", exists("hello"));
   printf("table['elloh'] exists: %d\n", exists("oellh"));
   printf("table['llohe'] exists: %d\n", exists("llohe"));
+
+  _remove("oellh");
+
+  print_hash_table(0);
 }
