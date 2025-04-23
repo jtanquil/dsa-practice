@@ -5,7 +5,9 @@ void main() {
   printf("hash of 'hi' is: %d\n", hash("hi"));
 
   add("hello", "hi");
+  add("hfllo", "test");
   add("hey", "what's up");
+  add("hye", "hello");
   add("olleh", "ih");
   add("loelh", "hey");
   add("what is up", "guys");

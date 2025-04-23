@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #define TABLE_SIZE 13
+#define POLYNOMIAL_CONSTANT 255
 
 struct node {
   char *key;
@@ -36,15 +37,15 @@ struct listnode *create_list_node(char *key, char *value) {
   return new_listnode;
 }
 
-// naive hash to test collisions
+// polynomial hash
 int hash(char *key) {
   int i = 0;
 
-  while (*key != '\0') {
-    i += *(key++);
+  for (; *key != '\0'; key++) {
+    i = (*key + i * POLYNOMIAL_CONSTANT) % TABLE_SIZE;
   }
 
-  return i % TABLE_SIZE;
+  return i;
 }
 
 struct listnode *find(char *key) {
