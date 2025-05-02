@@ -103,6 +103,40 @@ int get_node_count() {
   return get_subtree_count(new_tree->root);
 }
 
+// bfs traversal
+void print_levels() {
+  int node_count = get_node_count();
+  struct node *nodes[node_count];
+  int read_index = 0;
+  int write_index = 0;
+  int size = 0;
+
+  if (new_tree->root == NULL) {
+    printf("error: tree is empty\n");
+  } else {
+    nodes[write_index++] = new_tree->root;
+    size++;
+
+    while (size > 0) {
+      struct node *current_node = nodes[read_index++];
+      size--;
+
+      print_node(current_node);
+
+      if (current_node->left != NULL) {
+        nodes[write_index++] = current_node->left;
+        size++;
+      }
+
+      if (current_node->right != NULL) {
+        nodes[write_index++] = current_node->right;
+        size++;
+      }
+    }
+  }
+}
+
+
 // is_in_subtree:
 // starting at the root,
 // compare node->key to key, if they're equal return 1, else check the correct side
@@ -154,8 +188,37 @@ int get_height() {
 // get_min and get_max:
 // starting from the root, go left/right until there are no children left
 // once there are no children left, that's the min/max
-int get_min();
-int get_max();
+int get_min_in_subtree(struct node *current_node) {
+  if (current_node->left == NULL) {
+    return current_node->key;
+  } else {
+    return get_min_in_subtree(current_node->left);
+  }
+}
+
+int get_min() {
+  if (new_tree->root == NULL) {
+    return NULL;
+  } else {
+    return get_min_in_subtree(new_tree->root);
+  }
+}
+
+int get_max_in_subtree(struct node *current_node) {
+  if (current_node->right == NULL) {
+    return current_node->key;
+  } else {
+    return get_max_in_subtree(current_node->right);
+  }
+}
+
+int get_max() {
+  if (new_tree->root == NULL) {
+    return NULL;
+  } else {
+    return get_max_in_subtree(new_tree->root);
+  }
+}
 
 // is_binary_search_tree:
 // need node->left->key <= node->key, and node->right->key >= node->key
@@ -164,8 +227,152 @@ int is_binary_search_tree();
 
 // delete_node:
 // if the node has no children, unassign its parent's child pointer and free it
-//
-int delete_note(struct node *current_node);
+// otherwise:
+// if the node has a left child, find its predecessor, swap the values, then delete the predecessor
+// if the node has a right child, find its successor, swap the values, then delete the successor
+struct node *get_successor_node(struct node *current_node) {
+  if (current_node->right == NULL) {
+    return NULL;
+  } else {
+    current_node = current_node->right;
+
+    while (current_node->left != NULL) {
+      current_node = current_node->left;
+    }
+
+    return current_node;
+  }
+}
+
+struct node *get_predecessor_node(struct node *current_node) {
+  if (current_node->left == NULL) {
+    return NULL;
+  } else {
+    current_node = current_node->left;
+
+    while (current_node->right != NULL) {
+      current_node = current_node->right;
+    }
+
+    return current_node;
+  }
+}
+
+int delete_node(struct node *current_node) {
+  if (current_node->left == NULL && current_node->right == NULL) {
+    struct node *parent = current_node->parent;
+
+    if (parent != NULL) {
+      if (current_node == parent->left) {
+        parent->left = NULL;
+      } else if (current_node == parent->right) {
+        parent->right = NULL;
+      }
+    }
+
+    if (current_node == new_tree->root) {
+      new_tree->root = current_node->parent;
+    }
+
+    free(current_node);
+  } else {
+    if (current_node->left != NULL) {
+      struct node *predecessor = get_predecessor_node(current_node);
+      current_node->key = predecessor->key;
+
+      delete_node(predecessor);
+    } else if (current_node->right != NULL) {
+      struct node *successor = get_successor_node(current_node);
+      current_node->key = successor->key;
+
+      delete_node(successor);
+    }
+  }
+}
+
+void delete_tree() {
+  while (new_tree->root != NULL) {
+    delete_node(new_tree->root);
+  }
+}
+
+struct node *find_node_in_subtree(int key, struct node *current_node) {
+  if (current_node == NULL) {
+    return NULL;
+  } else if (current_node->key == key) {
+    return current_node;
+  } else if (current_node->key < key) {
+    return find_node_in_subtree(key, current_node->right);
+  } else if (current_node->key > key) {
+    return find_node_in_subtree(key, current_node->left);
+  }
+}
+
+struct node *find_node(int key) {
+  if (new_tree->root == NULL) {
+    return NULL;
+  } else {
+    return find_node_in_subtree(key, new_tree->root);
+  }
+}
 
 // delete_value: find the value and delete the corresponding node
-int delete_value(int key);
+void delete_value(int key) {
+  if (!is_in_tree(key)) {
+    printf("key not found\n");
+  } else {
+    delete_node(find_node(key));
+  }
+}
+
+// get_successor, get_predecessor: get next-highest/next-lowest value in the tree after key, -1 if none
+// get_successor: two cases:
+// 1) key < root: then root is a candidate, compare root to the successor from left subtree
+// 2) key >= root: then -1 is a candidate, compare to the successor from right subtree
+// general recursive case:
+// passing a previous successor candidate + key,
+// 0) if current is null, then return candidate
+// 1) if current < key, then go right; if current >= key, then update the candidate and go left
+int get_successor_in_subtree(int key, int candidate, struct node *current_node) {
+  if (current_node == NULL) {
+    return candidate;
+  } else {
+    if (current_node->key > key) {
+      return get_successor_in_subtree(key, current_node->key, current_node->left);
+    } else if (current_node->key <= key) {
+      return get_successor_in_subtree(key, candidate, current_node->right);
+    }
+  }
+}
+
+int get_successor(int key) {
+  if (new_tree->root == NULL) {
+    return -1;
+  } else {
+    return get_successor_in_subtree(key, -1, new_tree->root);
+  }
+}
+
+// get_predecessor: two cases:
+// passing a previous predecessor candidate + key,
+// if current <= key, update the candidate and go right
+// if current > key, then go left
+int get_predecessor_in_subtree(int key, int candidate, struct node *current_node) {
+  if (current_node == NULL) {
+    return candidate;
+  } else {
+    if (current_node->key <= key) {
+      return get_predecessor_in_subtree(key, current_node->key, current_node->right);
+    } else if (current_node->key > key) {
+      return get_predecessor_in_subtree(key, candidate, current_node->left);
+    }
+  }
+}
+
+int get_predecessor(int key) {
+  if (new_tree->root == NULL) {
+    return -1;
+  } else {
+    return get_predecessor_in_subtree(key, -1, new_tree->root);
+  }
+}
