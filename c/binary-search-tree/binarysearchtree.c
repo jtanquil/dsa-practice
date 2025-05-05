@@ -332,7 +332,7 @@ void delete_value(int key) {
 // general recursive case:
 // passing a previous successor candidate + key,
 // 0) if current is null, then return candidate
-// 1) if current < key, then go right; if current >= key, then update the candidate and go left
+// 1) if current <= key, then go right; if current > key, then update the candidate and go left
 int get_successor_in_subtree(int key, int candidate, struct node *current_node) {
   if (current_node == NULL) {
     return candidate;
