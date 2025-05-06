@@ -108,16 +108,21 @@ void print_levels() {
 }
 
 // rotate, then update height of rotated current_node and rotated child
-// assumes current_node->left exists
+// right_rotate: assumes current_node->left exists
+// left_rotate: assumes current_node->right exists
 void right_rotate(struct node *current_node) {
   struct node *current_ancestor = current_node->parent;
   struct node *left_child = current_node->left;
-
+  
+  // update the current parent's child to the rotated child
+  // otherwise, the current node is the current root, and the rotated child is the new root
   if (current_ancestor != NULL && current_ancestor->left == current_node) {
     current_ancestor->left = left_child;
+    left_child->parent = current_ancestor;
   } else if (current_ancestor != NULL && current_ancestor->right == current_node) {
     current_ancestor->right = left_child;
-  } else { // otherwise, the current node is the current root, and the rotated child is the new root
+    left_child->parent = current_ancestor;
+  } else { 
     tree->root = left_child;
     left_child->parent = NULL;
   }
@@ -133,24 +138,19 @@ void right_rotate(struct node *current_node) {
 
   current_node->height = get_height(current_node);
   left_child->height = get_height(left_child);
-
-  print_node(current_node);
-  print_node(left_child);
-  if (left_right_subtree != NULL) {
-    print_node(left_right_subtree);
-  }
 }
 
-// assumes current_node->right exists
 void left_rotate(struct node *current_node) {
   struct node *current_ancestor = current_node->parent;
   struct node *right_child = current_node->right;
 
   if (current_ancestor != NULL && current_ancestor->left == current_node) {
     current_ancestor->left = right_child;
+    right_child->parent = current_ancestor;
   } else if (current_ancestor != NULL && current_ancestor->right == current_node) {
     current_ancestor->right = right_child;
-  } else { // otherwise, the current node is the current root, and the rotated child is the new root
+    right_child->parent = current_ancestor;
+  } else {
     tree->root = right_child;
     right_child->parent = NULL;
   }
@@ -166,12 +166,6 @@ void left_rotate(struct node *current_node) {
 
   current_node->height = get_height(current_node);
   right_child->height = get_height(right_child);
-
-  print_node(current_node);
-  print_node(right_child);
-  if (right_left_subtree != NULL) {
-    print_node(right_left_subtree);
-  }
 }
 
 void rebalance(struct node *current_node) {
@@ -309,7 +303,7 @@ struct node *get_predecessor_node(struct node *current_node) {
 
 // deletes node w/corresponding key from the tree; assuming key is in the tree, 3 cases:
 // 1. node has no children. then set node->parent->(left/right) = NULL, deallocate node,
-//    update height of ancestors
+//    rebalance ancestors
 // 2. node has a left child. then set node->key = predecessor->key, delete predecessor 
 //    (update predecessor's ancestors)
 // 3. node has a right child. then set node->key = successor->key, delete successor 
@@ -331,7 +325,10 @@ void delete_node(struct node *current_node) {
       tree_size--;
 
       while (current_ancestor != NULL) {
-        current_ancestor->height = get_height(current_ancestor);
+        if (get_height_skew(current_ancestor) < -1 || get_height_skew(current_ancestor) > 1) {
+          rebalance(current_ancestor);
+        }
+
         current_ancestor = current_ancestor->parent;
       }
     } else {
