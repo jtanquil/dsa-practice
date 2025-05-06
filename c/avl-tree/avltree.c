@@ -27,21 +27,35 @@ struct node *create_node(int key) {
   return new_node;
 }
 
+void initialize() {
+  tree = malloc(sizeof(struct avltree));
+  tree->root == NULL;
+}
+
 int get_size() {
   return tree_size;
 }
 
+int get_height(struct node *current_node) {
+  // if one side of a node has no subtree its contribution to the height of the node is 0,
+  // so the height of the empty subtree itself is 0 - 1 = -1
+  int left_height = (current_node->left == NULL) ? -1 : current_node->left->height;
+  int right_height = (current_node->right == NULL) ? -1 : current_node->right->height;
+
+  return (left_height > right_height) ? left_height + 1 : right_height + 1;
+}
+
 int get_height_skew(struct node *current_node) {
-  int left_height = (current_node->left == NULL) ? 0 : current_node->left->height;
-  int right_height = (current_node->right == NULL) ? 0 : current_node->right->height;
+  int left_height = (current_node->left == NULL) ? -1 : current_node->left->height;
+  int right_height = (current_node->right == NULL) ? -1 : current_node->right->height;
 
   return right_height - left_height;
 }
 
 void print_node(struct node *current_node) {
-  int parent_key = (current_node->parent == NULL) ? NULL : current_node->parent->key;
-  int left_key = (current_node->left == NULL) ? NULL : current_node->left->key;
-  int right_key = (current_node->right == NULL) ? NULL : current_node->right->key;
+  int parent_key = (current_node->parent == NULL) ? -1 : current_node->parent->key;
+  int left_key = (current_node->left == NULL) ? -1 : current_node->left->key;
+  int right_key = (current_node->right == NULL) ? -1 : current_node->right->key;
   printf("key: %d, height: %d, skew: %d, parent: %d, left: %d, right: %d\n", current_node->key, current_node->height, get_height_skew(current_node), parent_key, left_key, right_key);
 }
 
@@ -93,9 +107,91 @@ void print_levels() {
   }
 }
 
-void initialize() {
-  tree = malloc(sizeof(struct avltree));
-  tree->root == NULL;
+// rotate, then update height of rotated current_node and rotated child
+// assumes current_node->left exists
+void right_rotate(struct node *current_node) {
+  struct node *current_ancestor = current_node->parent;
+  struct node *left_child = current_node->left;
+
+  if (current_ancestor != NULL && current_ancestor->left == current_node) {
+    current_ancestor->left = left_child;
+  } else if (current_ancestor != NULL && current_ancestor->right == current_node) {
+    current_ancestor->right = left_child;
+  } else { // otherwise, the current node is the current root, and the rotated child is the new root
+    tree->root = left_child;
+    left_child->parent = NULL;
+  }
+
+  struct node *left_right_subtree = left_child->right;
+  left_child->right = current_node;
+  current_node->parent = left_child;
+  current_node->left = left_right_subtree;
+
+  if (left_right_subtree != NULL) {
+    left_right_subtree->parent = current_node;
+  }
+
+  current_node->height = get_height(current_node);
+  left_child->height = get_height(left_child);
+
+  print_node(current_node);
+  print_node(left_child);
+  if (left_right_subtree != NULL) {
+    print_node(left_right_subtree);
+  }
+}
+
+// assumes current_node->right exists
+void left_rotate(struct node *current_node) {
+  struct node *current_ancestor = current_node->parent;
+  struct node *right_child = current_node->right;
+
+  if (current_ancestor != NULL && current_ancestor->left == current_node) {
+    current_ancestor->left = right_child;
+  } else if (current_ancestor != NULL && current_ancestor->right == current_node) {
+    current_ancestor->right = right_child;
+  } else { // otherwise, the current node is the current root, and the rotated child is the new root
+    tree->root = right_child;
+    right_child->parent = NULL;
+  }
+
+  struct node *right_left_subtree = right_child->left;
+  right_child->left = current_node;
+  current_node->parent = right_child;
+  current_node->right = right_left_subtree;
+
+  if (right_left_subtree != NULL) {
+    right_left_subtree->parent = current_node;
+  }
+
+  current_node->height = get_height(current_node);
+  right_child->height = get_height(right_child);
+
+  print_node(current_node);
+  print_node(right_child);
+  if (right_left_subtree != NULL) {
+    print_node(right_left_subtree);
+  }
+}
+
+void rebalance(struct node *current_node) {
+  if (get_height_skew(current_node) < -1) {
+    struct node *left_child = current_node->left;
+
+    if (get_height_skew(left_child) == 1) {
+      left_rotate(left_child);
+    }
+
+    right_rotate(current_node);
+  } else if (get_height_skew(current_node) > 1) {
+    struct node *right_child = current_node->right;
+
+    if (get_height_skew(right_child) == -1) {
+      right_rotate(right_child);
+    }
+      
+    left_rotate(current_node);
+  }
 }
 
 // recursively insert element into current_node's subtree
@@ -111,12 +207,19 @@ void insert_into_subtree(int key, struct node *current_node) {
         current_node->height = 1;
       }
 
+      if (get_height_skew(current_node) < -1 || get_height_skew(current_node) > 1) {
+        rebalance(current_node);
+      }
+
       tree_size++;
     } else {
       insert_into_subtree(key, current_node->left);
-      int left_height = current_node->left->height;
-      int right_height = (current_node->right == NULL) ? 0 : current_node->right->height;
-      current_node->height = (left_height > right_height) ? left_height + 1 : right_height + 1;
+      
+      if (get_height_skew(current_node) < -1 || get_height_skew(current_node) > 1) {
+        rebalance(current_node);
+      }
+
+      current_node->height = get_height(current_node);
     }
   } else if (current_node->key <= key) {
     if (current_node->right == NULL) {
@@ -128,12 +231,19 @@ void insert_into_subtree(int key, struct node *current_node) {
         current_node->height = 1;
       }
 
+      if (get_height_skew(current_node) < -1 || get_height_skew(current_node) > 1) {
+        rebalance(current_node);
+      }
+
       tree_size++;
     } else {
       insert_into_subtree(key, current_node->right);
-      int left_height = (current_node->left == NULL) ? 0 : current_node->left->height;
-      int right_height = current_node->right->height;
-      current_node->height = (left_height > right_height) ? left_height + 1 : right_height + 1;
+
+      if (get_height_skew(current_node) < -1 || get_height_skew(current_node) > 1) {
+        rebalance(current_node);
+      }
+
+      current_node->height = get_height(current_node);
     }
   }
 }
@@ -221,12 +331,7 @@ void delete_node(struct node *current_node) {
       tree_size--;
 
       while (current_ancestor != NULL) {
-        // if one side of a node has no subtree its contribution to the height of the node is 0,
-        // so the height of the empty subtree itself is 0 - 1 = -1
-        int left_height = (current_ancestor->left == NULL) ? -1 : current_ancestor->left->height;
-        int right_height = (current_ancestor->right == NULL) ? -1 : current_ancestor->right->height;
-
-        current_ancestor->height = (left_height > right_height) ? left_height + 1 : right_height + 1;
+        current_ancestor->height = get_height(current_ancestor);
         current_ancestor = current_ancestor->parent;
       }
     } else {

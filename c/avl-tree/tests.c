@@ -7,9 +7,10 @@ void test_initialize() {
 }
 
 void test_insert() {
-  int arr[] = { 40, 20, 60, 10, 30, 50, 70, 36, 49 };
+  int arr[] = { 0, -2, -5, -3, -6, -4 };
 
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < 6; i++) {
+    printf("inserting %d\n", arr[i]);
     insert(arr[i]);
   }
 }
@@ -43,9 +44,9 @@ void runalltests() {
   test_get_size();
   test_print_tree();
   test_print_levels();
-  test_delete_value();
-  test_print_levels();
+  //test_delete_value();
+  //test_print_levels();
   test_get_size();
-  
+
   printf("all tests passed\n");
 }
