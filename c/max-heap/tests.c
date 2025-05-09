@@ -24,7 +24,7 @@ void test_size() {
 }
 
 void test_extract_max() {
-  for (int i = 1; i < 8; i++) {
+  for (int i = 1; i < 12; i++) {
     printf("removed max: %d\n", extract_max());
     print_heap();
     test_size();
@@ -38,6 +38,14 @@ void test_remove() {
   print_heap();
 }
 
+void test_heap_sort() {
+  int arr[] = { 5, 1, 9, 0, 3, 4, 7, 8, 6, 2 };
+  int size = 10;
+
+  heap_sort(arr, size);
+  test_print_heap();
+}
+
 void runalltests() {
   test_initialize();
   test_print_heap();
@@ -45,6 +53,7 @@ void runalltests() {
   test_insert();
   test_extract_max();
   test_remove();
+  test_heap_sort();
 
   printf("all tests passed\n");
 }

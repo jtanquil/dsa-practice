@@ -8,5 +8,6 @@ int is_empty(void);
 void insert(int);
 int extract_max(void);
 int _remove(int);
+void heap_sort(int *, int);
 
 #endif
