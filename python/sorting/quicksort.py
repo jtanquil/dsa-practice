@@ -1,35 +1,36 @@
 from random import randint, seed
 
-def quick_sort(arr, low = None, high = None):
-  """Perform in-place quicksort on arr."""
-  low = -1 if low is None else low
-  high = len(arr) - 1 if high is None else high
-  pivot_index = randint(low + 1, high)
-  pivot = arr[pivot_index]
+def quick_sort_recursive(arr, low, high):
+  """Recursively quicksort arr[low:high] in-place."""
+  if (low >= high):
+    return
+  else:
+    pivot_index = randint(low, high)
+    pivot = arr[pivot_index]
+    new_low = low
+    new_high = high - 1
 
-  arr[pivot_index], arr[high] = arr[high], arr[pivot_index]
+    arr[pivot_index], arr[high] = arr[high], arr[pivot_index]
 
-  while (low < high):
-    while (True):
-      low += 1
+    while (new_low < new_high):
+      while (arr[new_low] < pivot):
+        new_low += 1
 
-      if (arr[low] > pivot):
-        break
+      while (arr[new_high] >= pivot and new_low < new_high):
+        new_high -= 1
 
-    while (True):
-      high -= 1
+      arr[new_low], arr[new_high] = arr[new_high], arr[new_low]
 
-      if (arr[high] <= pivot):
-        break
-    
-    arr[low], arr[high] = arr[high], arr[low]
+    arr[high], arr[new_high] = arr[new_high], arr[high]
 
-  arr[pivot_index], arr[low] = arr[low], arr[pivot_index]
-  quick_sort(arr, 0, low)
-  quick_sort(arr, high, len(arr))
+    quick_sort_recursive(arr, low, new_high)
+    quick_sort_recursive(arr, new_high + 1, high)
+
+def quick_sort(arr):
+  quick_sort_recursive(arr, 0, len(arr) - 1)
 
 if __name__ == "__main__":
-  seed(3413)
+  seed(4416)
   test = [randint(0, 100) for i in range(20)]
 
   print(test, len(test))
