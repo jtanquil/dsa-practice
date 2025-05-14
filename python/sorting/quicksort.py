@@ -12,27 +12,27 @@ def quick_sort_recursive(arr, low, high):
 
     arr[pivot_index], arr[high] = arr[high], arr[pivot_index]
 
-    while (new_low < new_high):
+    while (new_low <= new_high):
       while (arr[new_low] < pivot):
         new_low += 1
 
-      while (arr[new_high] >= pivot and new_low < new_high):
+      while (arr[new_high] >= pivot and new_low <= new_high):
         new_high -= 1
 
-      arr[new_low], arr[new_high] = arr[new_high], arr[new_low]
+      if (new_low <= new_high):
+        arr[new_low], arr[new_high] = arr[new_high], arr[new_low]
 
-    arr[high], arr[new_high] = arr[new_high], arr[high]
+    arr[high], arr[new_low] = arr[new_low], arr[high]
 
-    quick_sort_recursive(arr, low, new_high)
-    quick_sort_recursive(arr, new_high + 1, high)
+    quick_sort_recursive(arr, low, new_low - 1)
+    quick_sort_recursive(arr, new_low + 1, high)
 
 def quick_sort(arr):
   quick_sort_recursive(arr, 0, len(arr) - 1)
 
 if __name__ == "__main__":
-  seed(4416)
-  test = [randint(0, 100) for i in range(20)]
-
+  test = [randint(0, 100) for i in range(10)]
+  
   print(test, len(test))
 
   quick_sort(test)
