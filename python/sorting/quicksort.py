@@ -19,7 +19,7 @@ def quick_sort_recursive(arr, low, high):
       while (arr[new_high] >= pivot and new_low <= new_high):
         new_high -= 1
 
-      if (new_low <= new_high):
+      if (new_low < new_high):
         arr[new_low], arr[new_high] = arr[new_high], arr[new_low]
 
     arr[high], arr[new_low] = arr[new_low], arr[high]
