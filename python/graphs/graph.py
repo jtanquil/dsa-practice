@@ -33,6 +33,30 @@ class AdjacencyListGraph:
 
     return { 'tree': tree, 'distances': distances }
 
+  def _visit(self, current_tree, current_vertex):
+    for vertex in self._list[current_vertex]:
+      if vertex not in current_tree:
+        current_tree[vertex] = current_vertex
+        self._visit(current_tree, vertex)
+    
+    return current_tree
+
+  def get_parent_tree(self, source_vertex):
+    tree = { source_vertex: None }
+
+    return self._visit(tree, source_vertex)
+
+  def full_dfs(self):
+    components = []
+    remaining_vertices = [ key for key in self._list.keys() ]
+
+    while len(remaining_vertices) > 0:
+      component = self.get_parent_tree(remaining_vertices[0])
+      components.append(component)
+      remaining_vertices = list(filter(lambda x: x not in component.keys(), remaining_vertices))
+
+    return components
+
   def __str__(self):
     adjacencies = []
 
@@ -42,17 +66,20 @@ class AdjacencyListGraph:
     return '\n'.join(adjacencies)
 
 if __name__ == "__main__":
-  test = AdjacencyListGraph(5)
+  test = AdjacencyListGraph(9)
   test.add_edge(0, 1)
   test.add_edge(0, 2)
   test.add_edge(1, 2)
-  test.add_edge(1, 4)
-  test.add_edge(2, 3)  
-  test.add_edge(3, 1)
   test.add_edge(3, 4)
-  test.add_edge(4, 3)
+  test.add_edge(3, 5)
+  test.add_edge(6, 8)
+  test.add_edge(8, 7)
+  test.add_edge(7, 6)
 
   print(test)
 
-  for i in range(5):
+  for i in range(9):
     print(test.get_shortest_path_tree(i))
+    print(test.get_parent_tree(i))
+
+  print(test.full_dfs())
