@@ -10,6 +10,15 @@ class DynamicArray():
     self._size = 0
     self._a = [None] * self._capacity
 
+  def build(self, iter):
+    self._capacity = len(iter) * self.RESIZE_FACTOR
+    self._size = len(iter)
+    self._a = [None] * self._capacity
+
+    for i in range(len(iter)):
+      self[i] = iter[i]
+      print(self[i], iter[i])
+
   def __len__(self):
     return self._size
 
@@ -20,14 +29,18 @@ class DynamicArray():
     return self._capacity
 
   def __getitem__(self, i):
-    if abs(i) in range(len(self)) or i == -len(self):
+    if i in range(len(self)):
       return self._a[i]
+    elif i in range(-len(self), 0):
+      return self._a[len(self) + i]
     else:
       print("error: index out of range")
 
   def __setitem__(self, i, val):
-    if abs(i) in range(len(self)) or i == -len(self):
+    if i in range(len(self)):
       self._a[i] = val
+    elif i in range(-len(self), 0):
+      self._a[len(self) + i] = val
     else:
       print("error: assignment index out of range")
 
@@ -49,14 +62,19 @@ class DynamicArray():
 
 if __name__ == "__main__":
   test = DynamicArray()
-  test._a = [1, 2, 3]
-  test._size = 3
-
+  test.build([1, 2, 3])
+  
   test[0] = 3
   test[1] = 5
   test[-1] = 7
 
-  print(test[0], test)
+  print(test[-1], test)
+
+  for i in range(len(test)):
+    print(i, test[i])
+
+  for i in range(-len(test), 0):
+    print(i, test[i])
 
   print(test.capacity())
 
