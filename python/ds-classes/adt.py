@@ -10,7 +10,7 @@ class Sequence(metaclass = ABCMeta):
     """Returns the length of the sequence."""
   
   @abstractmethod
-  def iter(self):
+  def __iter__(self):
     """Returns the stored items, one-by-one, in sequence order."""
 
   @abstractmethod
