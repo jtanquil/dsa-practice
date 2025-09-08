@@ -1,6 +1,6 @@
 from adt import Sequence, Set
 
-class DynamicArray():
+class DynamicArray(Sequence):
   DEFAULT_CAPACITY = 16
   RESIZE_FACTOR = 2
   SHRINK_THRESHOLD = 1/4
@@ -60,6 +60,25 @@ class DynamicArray():
 
     self._a = new_arr
 
+  def insert_at(self, i, val):
+    if (len(self) == self.capacity()):
+      self._resize()
+
+    for j in range(len(self) - 1, i - 1, -1):
+      self._a[j + 1] = self._a[j]
+
+    self._a[i] = val
+    self._size += 1
+
+  def delete_at(self, i):
+    for j in range(i, len(self)):
+      self._a[j] = self._a[j + 1]
+
+    self._size -= 1
+
+    if (self._size <= self._capacity * self.SHRINK_THRESHOLD):
+      self._resize(grow = False)
+
 if __name__ == "__main__":
   test = DynamicArray()
   test.build([1, 2, 3])
@@ -85,3 +104,35 @@ if __name__ == "__main__":
   test._resize(grow = False)
 
   print(test.capacity())
+
+  test.insert_at(2, 4)
+
+  print(test)
+
+  test.insert_first(-1)
+
+  print(test)  
+  
+  test.insert_last(12)
+
+  print(test, test.capacity())
+
+  test.insert_at(5, 27)
+
+  print(test, test.capacity())
+
+  test.delete_at(3)
+  
+  print(test)
+  
+  test.delete_first()
+  
+  print(test)
+  
+  test.delete_last()
+
+  print(test, test.capacity())
+
+  test.delete_at(2)
+
+  print(test, test.capacity())

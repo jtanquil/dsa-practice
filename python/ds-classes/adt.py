@@ -31,11 +31,11 @@ class Sequence(metaclass = ABCMeta):
 
   def insert_first(self, val):
     """Inserts val as the first item."""
-    self.inesrt_at(0, val)
+    self.insert_at(0, val)
 
   def delete_first(self):
     """Remove and return the first item."""
-    self.delete_at(0, val)
+    self.delete_at(0)
 
   def insert_last(self, val):
     """Inserts val as the last item."""
@@ -43,7 +43,7 @@ class Sequence(metaclass = ABCMeta):
 
   def delete_last(self):
     """Remove and return the last item."""
-    self.delete_at(len(self) - 1, val)
+    self.delete_at(len(self) - 1)
 
 class Set(metaclass = ABCMeta):
   @abstractmethod
