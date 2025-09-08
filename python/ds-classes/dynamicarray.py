@@ -34,12 +34,18 @@ class DynamicArray():
   def __iter__(self):
     for i in range(len(self)):
       yield self[i]
-    
-  def _resize(self, grow = True):
-    pass
 
   def __str__(self):
     return f'[{", ".join([f'{i}' for i in self])}]'
+    
+  def _resize(self, grow = True):
+    self._capacity = self._capacity * self.RESIZE_FACTOR if grow else self._capacity // self.RESIZE_FACTOR
+    new_arr = [None] * self._capacity
+
+    for i in range(len(self)):
+      new_arr[i] = self[i]
+
+    self._a = new_arr
 
 if __name__ == "__main__":
   test = DynamicArray()
@@ -51,3 +57,13 @@ if __name__ == "__main__":
   test[-1] = 7
 
   print(test[0], test)
+
+  print(test.capacity())
+
+  test._resize()
+
+  print(test.capacity())
+
+  test._resize(grow = False)
+
+  print(test.capacity())
