@@ -66,13 +66,15 @@ class SinglyLinkedList(Sequence):
 
     if i == 0:
       self.head, new_node.next = new_node, self.head
+
+      if len(self) == 0:
+        self.tail = new_node
+    elif i == len(self):
+      self.tail.next, self.tail = new_node, new_node
     else:
       prev_node = self.head.traverse(i - 1)
       old_node = prev_node.next
       prev_node.next, new_node.next = new_node, old_node
-
-    if i == len(self):
-      self.tail = new_node
 
     self._size += 1
 
