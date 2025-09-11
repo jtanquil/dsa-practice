@@ -85,3 +85,39 @@ class Set(metaclass = ABCMeta):
   @abstractmethod
   def find_prev(self, key):
     """Return the stored item with the largest key smaller than key."""
+
+class Stack(metaclass = ABCMeta):
+  @abstractmethod
+  def __len__(self):
+    """Returns the length of the stack."""
+
+  def empty(self):
+    return len(self) == 0
+  
+  @abstractmethod
+  def push(self, val):
+    """Pushes val to the top of the stack."""
+
+  @abstractmethod
+  def pop(self):
+    """Pops the element from the top of the stack and returns it."""
+
+  @abstractmethod
+  def top(self):
+    """Returns the top of the stack."""
+
+class Queue(metaclass = ABCMeta):
+  @abstractmethod
+  def __len__(self):
+    """Returns the length of the queue."""
+
+  def empty(self):
+    return len(self) == 0
+
+  @abstractmethod
+  def enqueue(self, val):
+    """Enqueues val to the back of the queue."""
+  
+  @abstractmethod
+  def dequeue(self):
+    """Dequeues and returns the element from the front of the queue."""
