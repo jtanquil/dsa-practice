@@ -66,6 +66,7 @@ class Set(metaclass = ABCMeta):
   def __delitem__(self, key):
     """Remove and return the stored item with the given key."""
 
+class OrderedSet(Set, metaclass = ABCMeta):
   @abstractmethod
   def iter_ord(self):
     """Return the stored items one-by-one in key order."""
