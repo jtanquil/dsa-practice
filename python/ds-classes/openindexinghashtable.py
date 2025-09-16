@@ -59,6 +59,7 @@ class OpenIndexingHashTable(Set):
 
     if (item.key == key):
       self._a[self.hash(key, iter)] = self.deleted
+      self._size -= 1
 
   def build(self, iter):
     self._size = 0
