@@ -21,8 +21,12 @@ class HashTableChain(SinglyLinkedList):
     while current_node is not None:
       if current_node.val.key == key:
         current_node.val.val = val
+        return False
 
       current_node = current_node.next
+
+    self.insert_last(HashEntry(key, val))
+    return True
   
   def del_by_key(self, key):
     current_node = self.head
@@ -50,10 +54,13 @@ class HashTableChain(SinglyLinkedList):
     
     return False
 
+    def __str__(self):
+      return '(' + super().__str__() + ')'
+
 class ChainingHashTable(Set):
   DEFAULT_CAPACITY = 16
 
-  def __init__(self, capacity, DEFAULT_CAPACITY):
+  def __init__(self, capacity = DEFAULT_CAPACITY):
     self._capacity = capacity
     self._a = [None] * self._capacity
     self._size = 0
@@ -65,41 +72,76 @@ class ChainingHashTable(Set):
     return hash(key) % self.capacity
 
   def __iter__(self):
-    pass
+    for chain in self._a:
+      if chain is not None:
+        for ele in chain:
+          yield ele
+      else:
+        yield None
 
   def __getitem__(self, key):
-    pass
+    chain = self._a[self.hash(key)]
+
+    return None if chain is None else chain.get_by_key(key)
 
   def __setitem__(self, key, val):
-    pass
+    chain = self._a[self.hash(key)]
+    element_added = False
+
+    if chain is None:
+      self._a[self.hash(key)] = HashTableChain()
+      chain = self._a[self.hash(key)]
+
+    element_added = chain.set_by_key(key, val)
+
+    if element_added:
+      self._size += 1
 
   def __delitem__(self, key):
-    pass
+    chain = self._a[self.hash(key)]
+
+    if chain is not None:
+      element_removed = chain.del_by_key(key)
+
+    if element_removed:
+      self._size -= 1
 
   def build(self, iter):
-    pass
+    self.capacity = len(iter)
+    self._a = [None] * self.capacity
+    self._size = 0
+
+    for ele in iter:
+      self[ele.key] = ele.val
 
   def __str__(self):
-    pass
+    return '[' + ", ".join(f'{ele}' for ele in self) + ']'
 
 if __name__ == "__main__":
   seed(3413)
-  hash_table_chain = HashTableChain()
 
-  for i in range(5):
-    hash_table_chain.insert_first(HashEntry(f'test{i}', i))
+  hash_table = ChainingHashTable()
+  test = []
 
-  print(hash_table_chain)
+  for j in range (10):
+    test.append(HashEntry(f'test{j}', j))
 
-  for i in range(5):
-    print(hash_table_chain.get_by_key(f'test{i}'))
-    hash_table_chain.set_by_key(f'test{i}', i + 1)
-    
-  print(hash_table_chain)
+  hash_table.build(test)
 
-  for i in range(0, 5, 2):
-    print(f'deleting test{i}')
-    hash_table_chain.del_by_key(f'test{i}')
-    print(hash_table_chain)
+  print(hash_table)
 
-  print(hash_table_chain)
+  for j in range(11, 20):
+    hash_table[f'test{j}'] = j
+
+  print(hash_table)
+
+  for j in range(0, 20, 2):
+    print(f'checking test{j}')
+    if hash_table[f'test{j}'] is not None:
+      print(f'deleting test{j}')
+      del hash_table[f'test{j}']
+
+  print(hash_table)
+
+  for k in range(20):
+    print(f'test{k}: {hash_table[f'test{k}']}')
