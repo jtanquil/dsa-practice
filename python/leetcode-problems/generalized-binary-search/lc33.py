@@ -15,8 +15,8 @@
 # down the middle there are two cases:
 # - the pivot is at mid
 # - the pivot is to the left or right of mid
-# - in the first case, both the left and right halves are already sorted
-# - in the second, one half will be sorted, the other will be sorted with a pivot
+# => in the first case, both the left and right halves are already sorted
+# => in the second, one half will be sorted, the other will be sorted with a pivot
 # in either case, we can just recursively search each half and return left half | right half
 # (note that this works since the array elements are distinct)
 # since we're cutting the array in half each iteration this will be O(2 log n/2) = O(log n)
