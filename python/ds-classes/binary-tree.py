@@ -3,7 +3,6 @@ from random import randint, seed
 
 from adt import Sequence, Set
 
-
 class TreeNode():
   def __init__(self, val):
     self.val = val
@@ -98,15 +97,27 @@ class BinarySearchTree(Set):
 
     return nodes
   
-  def dfs_pre(self):
-    pass
+  def dfs(self, callback, order = "in-order"):
+    def dfs_r(node, callback, result, order):
+      if node is not None:
+        if order == "pre-order":
+          result.append(callback(node))
 
-  def dfs_inorder(self):
-    pass
-  
-  def dfs_post(self):
-    pass
+        if node.left is not None:
+          dfs_r(node.left, callback, result, order)
 
+        if order == "in-order":
+          result.append(callback(node))
+
+        if node.right is not None:
+          dfs_r(node.right, callback, result, order)
+
+        if order== "post-order":
+          result.append(callback(node))
+
+      return result
+
+    return [] if self.root is None else dfs_r(self.root, callback, [], order)
 
 if __name__ == "__main__":
   seed(3413)
@@ -117,4 +128,7 @@ if __name__ == "__main__":
     tree.insert(i)
 
   print(f'list: {test}')
-  print(f'tree: {tree}')
+  print(f'tree (bfs): {tree}')
+
+  for order in ["pre-order", "in-order", "post-order"]:
+    print(f'{order} dfs: {tree.dfs(lambda node: str(node), order)}')
