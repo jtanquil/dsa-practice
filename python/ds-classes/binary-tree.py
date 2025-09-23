@@ -45,33 +45,95 @@ class BSTNode(TreeNode):
   def __neq__(self, node):
     return self.val != node.val
 
-  def insert(self, val):
+  def insert(self, val, tree):
     if self.val < val:
       if self.right is None:
         self.right = BSTNode(val)
         self.right.parent = self
-        self.height = 1 if self.left is None else max(1, 1 + self.left.height)
       else:
-        self.right.insert(val)
+        self.right.insert(val, tree)
+
+      self.height = 1 + max(self.right.height, 0 if self.left is None else self.left.height)
     else:
       if self.left is None:
         self.left = BSTNode(val)
         self.left.parent = self
-        self.height = 1 if self.right is None else max(1, 1 + self.right.height)
       else:
-        self.left.insert(val)
+        self.left.insert(val, tree)
+
+      self.height = 1 + max(self.left.height, 0 if self.right is None else self.right.height)
 
     if self.is_imbalanced():
-      self.rebalance()
+      self.rebalance(tree)
 
-  def rebalance(self):
-    pass
+  def update_height(self):
+    left_height = 0 if self.left is None else self.left.height
+    right_height = 0 if self.right is None else self.right.height
+    max_subtree_height = max(left_height, right_height)
 
-  def left_rotate(self):
-    pass
+    self.height = 0 if max_subtree_height == 0 else max_subtree_height + 1
 
-  def right_rotate(self):
-    pass
+  def rebalance(self, tree):
+    skew = self.skew()
+
+    if skew == 2:
+      right_child = self.right
+      right_child_skew = right_child.skew()
+
+      if right_child_skew >= 0:
+        self.left_rotate(tree)
+      elif right_child_skew < 0:
+        right_child.right_rotate(tree)
+        self.left_rotate(tree)
+    elif skew == -2:
+      left_child = self.left
+      left_child_skew = left_child.skew()
+
+      if left_child_skew <= 0:
+        self.right_rotate(tree)
+      elif left_child_skew > 0:
+        left_child.left_rotate(tree)
+        self.right_rotate(tree)
+
+  def left_rotate(self, tree):
+    parent, right, right_left = self.parent, self.right, self.right.left
+
+    if parent is not None:
+      right.parent = parent
+
+      if self == parent.left:
+        parent.left = right
+      if self == parent.right:
+        parent.right = right
+    else: # if self has no parent, then it's the root
+      tree.root = right
+      right.parent = None
+
+    right.left = self
+    self.right = right_left
+    self.parent = right
+    self.update_height()
+    right.update_height()
+
+  def right_rotate(self, tree):
+    parent, left, left_right = self.parent, self.left, self.left.right
+
+    if parent is not None:
+      left.parent = parent
+
+      if self == parent.left:
+        parent.left = left
+      elif self == parent.right:
+        parent.right = left
+    else:
+      tree.root = left
+      left.parent = None
+    
+    left.right = self
+    self.left = left_right
+    self.parent = left
+    self.update_height()
+    left.update_height()
 
 class BinarySearchTree(Set):
   def __init__(self):
@@ -85,7 +147,7 @@ class BinarySearchTree(Set):
     if self.root is None:
       self.root = BSTNode(val)
     else:
-      self.root.insert(val)
+      self.root.insert(val, self)
 
     self.node_count += 1
 
@@ -148,6 +210,9 @@ class BinarySearchTree(Set):
 
     return [] if self.root is None else dfs_r(self.root, callback, [], order)
 
+  def debug_print(self):
+    return self.bfs(lambda node: f'node: {node}, left: {node.left}, right: {node.right}, parent: {node.parent}, height: {node.height}, skew: {node.skew()}')
+
 if __name__ == "__main__":
   orders = ["pre-order", "in-order", "post-order"]
   seed(3413)
@@ -164,10 +229,12 @@ if __name__ == "__main__":
     print(f'{order} dfs: {tree.dfs(lambda node: str(node), order)}')
 
   build_test = [randint(0, 20) for i in range(10)]
+  print(f'list: {build_test}')
   tree.build(build_test)
 
-  print(f'list: {build_test}')
   print(f'tree (bfs): {tree}')
 
   for order in orders:
     print(f'{order} dfs: {tree.dfs(lambda node: str(node), order)}')
+
+  print("\n".join(tree.debug_print()))
