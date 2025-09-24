@@ -1,4 +1,3 @@
-from abc import ABCMeta, abstractmethod
 from random import randint, seed
 
 from adt import Sequence, Set
@@ -64,14 +63,18 @@ class BSTNode(TreeNode):
       self.height = 1 + max(self.left.height, 0 if self.right is None else self.right.height)
 
     if self.is_imbalanced():
+      print("pre-balancing:\n" + "\n".join(tree.debug_print()))
+      print(f'rebalancing {self}')
       self.rebalance(tree)
+      print("post-balancing:\n" + "\n".join(tree.debug_print()))
 
   def update_height(self):
-    left_height = 0 if self.left is None else self.left.height
-    right_height = 0 if self.right is None else self.right.height
-    max_subtree_height = max(left_height, right_height)
-
-    self.height = 0 if max_subtree_height == 0 else max_subtree_height + 1
+    if self.left is None and self.right is None:
+      self.height = 0
+    else:
+      left_subtree_height = 0 if self.left is None else self.left.height
+      right_subtree_height = 0 if self.right is None else self.right.height
+      self.height = 1 + max(left_subtree_height, right_subtree_height)
 
   def rebalance(self, tree):
     skew = self.skew()
@@ -101,13 +104,16 @@ class BSTNode(TreeNode):
     if parent is not None:
       right.parent = parent
 
-      if self == parent.left:
+      if parent.left is not None and self == parent.left:
         parent.left = right
-      if self == parent.right:
+      if parent.right is not None and self == parent.right:
         parent.right = right
     else: # if self has no parent, then it's the root
       tree.root = right
       right.parent = None
+
+    if right_left is not None:
+      right_left.parent = self
 
     right.left = self
     self.right = right_left
@@ -121,19 +127,63 @@ class BSTNode(TreeNode):
     if parent is not None:
       left.parent = parent
 
-      if self == parent.left:
+      if parent.left is not None and self == parent.left:
         parent.left = left
-      elif self == parent.right:
+      elif parent.right is not None and self == parent.right:
         parent.right = left
     else:
       tree.root = left
       left.parent = None
     
+    if left_right is not None:
+      left_right.parent = self
+
     left.right = self
     self.left = left_right
     self.parent = left
     self.update_height()
     left.update_height()
+
+  def get_predecessor(self):
+    predecessor = self.left
+
+    while predecessor.right is not None:
+      predecessor = predecessor.right
+
+    return predecessor
+
+  def get_successor(self):
+    successor = self.right
+
+    while successor.left is not None:
+      successor = successor.left
+
+    return successor
+
+  def delete(self, tree):
+    if self.left is None and self.right is None:
+      if self.parent is None:
+        tree.root = None
+      else:
+        if self.parent.left is not None and self.parent.left == self:
+          self.parent.left = None
+        elif self.parent.right is not None and self.parent.right == self:
+          self.parent.right = None
+
+        if self.parent.is_imbalanced():
+          self.parent.rebalance()
+        
+        self.parent.update_height()
+    elif self.left is not None:
+      predecessor = self.get_predecessor()
+      predecessor.val, self.val = self.val, predecessor.val
+
+      predecessor.delete(tree)
+    elif self.right is not None:
+      successor = self.get_successor()
+      successor.val, self.val = self.val, successor.val
+
+      successor.delete(tree)
 
 class BinarySearchTree(Set):
   def __init__(self):
@@ -144,6 +194,7 @@ class BinarySearchTree(Set):
     return self.node_count
 
   def insert(self, val):
+    print(f'inserting {val}')
     if self.root is None:
       self.root = BSTNode(val)
     else:
@@ -159,13 +210,27 @@ class BinarySearchTree(Set):
       self.insert(ele)
   
   def __getitem__(self, key):
-    pass
+    current_node = self.root
+
+    while current_node is not None:
+      if current_node.val == key:
+        return current_node
+      elif current_node.val < key:
+        current_node = current_node.right
+      else:
+        current_node = current_node.left
+
+    return current_node
 
   def __setitem__(self, key):
     pass
 
   def __delitem__(self, key):
-    pass
+    target_node = self[key]
+
+    if target_node is not None:
+      target_node.delete(self)
+      self.node_count -= 1
 
   def __str__(self):
     return ", ".join(self.bfs(lambda node: str(node)))
@@ -216,7 +281,14 @@ class BinarySearchTree(Set):
 if __name__ == "__main__":
   orders = ["pre-order", "in-order", "post-order"]
   seed(3413)
-  test = [randint(0, 20) for i in range(10)]
+  test = []
+
+  while len(test) < 10:
+    test_num = randint(0, 20)
+
+    if test_num not in test:
+      test.append(test_num)
+
   tree = BinarySearchTree()
 
   for i in test:
@@ -228,7 +300,14 @@ if __name__ == "__main__":
   for order in orders:
     print(f'{order} dfs: {tree.dfs(lambda node: str(node), order)}')
 
-  build_test = [randint(0, 20) for i in range(10)]
+  build_test = []
+
+  while len(build_test) < 20:
+    test_num = randint(0, 20)
+
+    if test_num not in build_test:
+      build_test.append(test_num)
+
   print(f'list: {build_test}')
   tree.build(build_test)
 
@@ -238,3 +317,25 @@ if __name__ == "__main__":
     print(f'{order} dfs: {tree.dfs(lambda node: str(node), order)}')
 
   print("\n".join(tree.debug_print()))
+  print(tree.node_count)
+
+  del tree[20]
+
+  print(f'deleting 20')
+
+  print("\n".join(tree.debug_print()))
+  print(tree.node_count)
+
+  print(f'deleting 19')
+
+  del tree[19]
+
+  print("\n".join(tree.debug_print()))
+  print(tree.node_count)
+
+  print(f'deleting 10')
+
+  del tree[10]
+
+  print("\n".join(tree.debug_print()))
+  print(tree.node_count)
