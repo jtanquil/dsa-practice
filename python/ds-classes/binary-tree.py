@@ -1,6 +1,29 @@
 from random import randint, seed
 
 from adt import Sequence, Set
+from hashentry import HashEntry
+
+class TreeNodeVal(HashEntry):
+  def __init__(self, key, val):
+    super().__init__(key, val)
+
+  def __leq__(self, tree_node_val):
+    return self.key <= tree_node_val.key
+
+  def __lt__(self, tree_node_val):
+    return self.key < tree_node_val.key
+  
+  def __geq__(self, tree_node_val):
+    return self.key >= tree_node_val.key
+
+  def __gt__(self, tree_node_val):
+    return self.key > tree_node_val.key
+
+  def __eq__(self, tree_node_val):
+    return self.key == tree_node_val.key
+
+  def __neq__(self, tree_node_val):
+    return self.key != tree_node_val.key
 
 class TreeNode():
   def __init__(self, val):
@@ -12,6 +35,9 @@ class TreeNode():
 
   def __str__(self):
     return f'{self.val}'
+
+  def debug_str(self):
+    return f'node: {self.val}, height: {self.height}, left: {self.left}, right: {self.right}, parent: {self.parent}, skew: {self.skew()}'
 
   def skew(self):
     left_height = 0 if self.left is None else self.left.height
@@ -63,10 +89,7 @@ class BSTNode(TreeNode):
       self.height = 1 + max(self.left.height, 0 if self.right is None else self.right.height)
 
     if self.is_imbalanced():
-      print("pre-balancing:\n" + "\n".join(tree.debug_print()))
-      print(f'rebalancing {self}')
       self.rebalance(tree)
-      print("post-balancing:\n" + "\n".join(tree.debug_print()))
 
   def update_height(self):
     if self.left is None and self.right is None:
@@ -213,17 +236,22 @@ class BinarySearchTree(Set):
     current_node = self.root
 
     while current_node is not None:
-      if current_node.val == key:
+      if current_node.val.key == key:
         return current_node
-      elif current_node.val < key:
+      elif current_node.val.key < key:
         current_node = current_node.right
       else:
         current_node = current_node.left
 
     return current_node
 
-  def __setitem__(self, key):
-    pass
+  def __setitem__(self, key, val):
+    target_node = self[key]
+
+    if target_node is not None:
+      target_node.val.val = val
+    else:
+      self.insert(TreeNodeVal(key, val))
 
   def __delitem__(self, key):
     target_node = self[key]
@@ -275,8 +303,11 @@ class BinarySearchTree(Set):
 
     return [] if self.root is None else dfs_r(self.root, callback, [], order)
 
-  def debug_print(self):
-    return self.bfs(lambda node: f'node: {node}, left: {node.left}, right: {node.right}, parent: {node.parent}, height: {node.height}, skew: {node.skew()}')
+  def debug_str(self):
+    return "\n".join(self.bfs(lambda node: node.debug_str()))
+
+  def order_str(self):
+    return "\n".join(self.dfs(lambda node: node.debug_str(), "in-order"))
 
 if __name__ == "__main__":
   orders = ["pre-order", "in-order", "post-order"]
@@ -286,8 +317,8 @@ if __name__ == "__main__":
   while len(test) < 10:
     test_num = randint(0, 20)
 
-    if test_num not in test:
-      test.append(test_num)
+    if test_num not in map(lambda val: val.key, test):
+      test.append(TreeNodeVal(test_num, f'{test_num} value'))
 
   tree = BinarySearchTree()
 
@@ -305,8 +336,8 @@ if __name__ == "__main__":
   while len(build_test) < 20:
     test_num = randint(0, 20)
 
-    if test_num not in build_test:
-      build_test.append(test_num)
+    if test_num not in map(lambda val: val.key, build_test):
+      build_test.append(TreeNodeVal(test_num, f'{test_num} value'))
 
   print(f'list: {build_test}')
   tree.build(build_test)
@@ -316,26 +347,31 @@ if __name__ == "__main__":
   for order in orders:
     print(f'{order} dfs: {tree.dfs(lambda node: str(node), order)}')
 
-  print("\n".join(tree.debug_print()))
-  print(tree.node_count)
+  print(tree.debug_str())
+  print(tree.order_str())
 
   del tree[20]
 
   print(f'deleting 20')
 
-  print("\n".join(tree.debug_print()))
+  print(tree.debug_str())
   print(tree.node_count)
+  print(tree.order_str())
 
   print(f'deleting 19')
 
   del tree[19]
 
-  print("\n".join(tree.debug_print()))
+  print(tree.debug_str())
   print(tree.node_count)
+  print(tree.order_str())
 
   print(f'deleting 10')
 
   del tree[10]
+  tree[18] = "testing node reassignment"
+  tree[21] = "testing node assignment"
 
-  print("\n".join(tree.debug_print()))
+  print(tree.debug_str())
   print(tree.node_count)
+  print(tree.order_str())

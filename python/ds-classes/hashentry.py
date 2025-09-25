@@ -4,4 +4,4 @@ class HashEntry():
     self.val = val
 
   def __str__(self):
-    return f'{{ key: {self.key}, "val": {self.val} }}'
+    return f'{{ key: {self.key}, val: {self.val} }}'
