@@ -123,8 +123,7 @@ class Queue(metaclass = ABCMeta):
   def dequeue(self):
     """Dequeues and returns the element from the front of the queue."""
 
-
-class PriorityQueue(Queue):
+class PriorityQueue(metaclass = ABCMeta):
   @abstractmethod
   def build(self, iter):
     pass
