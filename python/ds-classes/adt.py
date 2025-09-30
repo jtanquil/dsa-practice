@@ -122,3 +122,20 @@ class Queue(metaclass = ABCMeta):
   @abstractmethod
   def dequeue(self):
     """Dequeues and returns the element from the front of the queue."""
+
+class PriorityQueue(metaclass = ABCMeta):
+  @abstractmethod
+  def build(self, iter):
+    pass
+
+  @abstractmethod
+  def insert(self, val):
+    pass
+
+  @abstractmethod
+  def delete_max(self):
+    pass
+  
+  @abstractmethod
+  def find_max(self):
+    pass
