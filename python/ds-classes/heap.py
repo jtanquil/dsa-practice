@@ -14,7 +14,7 @@ class Heap(PriorityQueue):
 
   def get_max(self, i):
     if not self.is_empty():
-      return self._h[-1]
+      return self._h[0]
     else:
       return None
 
@@ -66,6 +66,60 @@ class Heap(PriorityQueue):
   def __str__(self):
     return f'{self._h}'
 
+# implement in-place heapsort: maintain a prefix array
+# repeatedly insert the next element into the prefix w/append
+# do this until prefix length = length of input array
+# delete_max will swap the max element w/end of prefix, sift down the swapped element
+# do this until prefix length = 0
+class HeapSort():
+  def __init__(self, iter):
+    self._h = iter
+    self.prefix_length = 0
+
+  def __len__(self):
+    return self.prefix_length
+
+  def is_empty(self):
+    return len(self) == 0
+  
+  def append(self):
+    self.prefix_length += 1
+
+    self.max_sift_up(self.prefix_length - 1)
+
+  def max_sift_up(self, index):
+    if index > 0:
+      parent = floor((index - 1) / 2)
+
+      if self._h[index] >= self._h[parent]:
+        self._h[parent], self._h[index] = self._h[index], self._h[parent]
+        self.max_sift_up(parent)
+
+  def delete_max(self):
+    self._h[0], self._h[len(self) - 1] = self._h[len(self) - 1], self._h[0]
+    self.prefix_length -= 1
+
+    self.max_sift_down(0)
+
+  def max_sift_down(self, index):
+    left_child = 2 * index + 1
+    right_child = 2 * index + 2
+
+    if left_child < len(self) and self._h[index] < self._h[left_child]:
+      self._h[index], self._h[left_child] = self._h[left_child], self._h[index]
+      self.max_sift_down(left_child)
+
+    if right_child < len(self) and self._h[index] < self._h[right_child]:
+      self._h[index], self._h[right_child] = self._h[right_child], self._h[index]
+      self.max_sift_down(right_child)
+
+  def sort(self):
+    while self.prefix_length < len(self._h):
+      self.append()
+
+    while self.prefix_length > 0:
+      self.delete_max()
+
 if __name__ == "__main__":
   seed(3413)
   test = [randint(0, 20) for i in range(10)]
@@ -81,3 +135,12 @@ if __name__ == "__main__":
   while len(test_heap) > 0:
     print(test_heap.delete_max())
     print(test_heap)
+
+  test2 = [randint(-20, 20) for i in range(20)]
+  print(test2)
+  
+  test_heapsort = HeapSort(test2) 
+  test_heapsort.sort()
+
+  print(test2)
+
