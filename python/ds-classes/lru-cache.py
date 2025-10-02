@@ -44,25 +44,24 @@ class LRUCache():
       self.cache[key].val = val
 
   def remove(self, node):
-    if self.lru == node:
-      new_head = self.lru.next
-      node.next = None
+    if self.lru == node or self.mru == node:
+      if self.lru == node:
+        new_head = self.lru.next
+        node.next = None
 
-      if new_head is not None:
-        new_head.prev = None
-      
-      self.lru = new_head
-    
-    if self.mru == node:
-      new_tail = self.mru.prev
-      node.prev = None
+        if new_head is not None:
+          new_head.prev = None
+        
+        self.lru = new_head
+      elif self.mru == node:
+        new_tail = self.mru.prev
+        node.prev = None
 
-      if new_tail is not None:
-        new_tail.next = None
-      
-      self.mru = new_tail
-    
-    if self.lru != node and self.mru != node:
+        if new_tail is not None:
+          new_tail.next = None
+        
+        self.mru = new_tail
+    elif self.lru != node and self.mru != node:
       node.prev.next, node.next.prev = node.next, node.prev
       node.prev, node.next = None
 
@@ -76,11 +75,11 @@ class LRUCache():
       self.mru = node
 
   def __str__(self):
-    return f'{{ {[ele for ele in self.cache]} }}'
+    return f'{{ {[f'{self.cache[key]}' for key in self.cache]} }}'
 
 if __name__ == "__main__":
   cache = LRUCache()
 
   for i in range(10):
     cache.put(i, i * 10)
-    print(cache)
+    print(cache, cache.lru, cache.mru)
