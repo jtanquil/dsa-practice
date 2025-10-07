@@ -65,12 +65,15 @@ class GraphAdjacencyList(Graph):
               edge.x = x
               break
         
-        return
+        return edge
         
-    self._edges[u].append(Edge(u, v, x))
+    new_edge = Edge(u, v, x)
+    self._edges[u].append(new_edge)
     
     if not self.is_directed:
       self._edges[v].append(Edge(v, u, x))
+
+    return new_edge
 
   def remove_vertex(self, v):
     del self._edges[v]
