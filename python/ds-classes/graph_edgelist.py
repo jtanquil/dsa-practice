@@ -44,6 +44,9 @@ class GraphEdgeList(Graph):
   def insert_edge(self, u, v, x = None):
     new_edge = Edge(u, v, x)
     self._edges.append(new_edge)
+    if not self.is_directed:
+      self._edges.append(Edge(v, u, x))
+      
     return new_edge
 
   def remove_vertex(self, v):
