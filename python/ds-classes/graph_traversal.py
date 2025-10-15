@@ -25,6 +25,24 @@ def connected_components(graph):
 
   return components
 
+def bfs(graph, source_vertex):
+  visited_vertices = { source_vertex: None }
+  current_level = [source_vertex]
+
+  while len(current_level) > 0:
+    next_level = []
+    for outgoing_vertex in current_level:
+      incident_vertices = graph.incident_edges(outgoing_vertex)
+
+      for vertex in incident_vertices:
+        if vertex not in visited_vertices:
+          visited_vertices[vertex] = incident_vertices[vertex]
+          next_level.append(vertex)
+    
+    current_level = next_level
+
+  return visited_vertices
+
 if __name__ == "__main__":
   graph = GraphAdjacencyMap(is_directed = True)
 
@@ -60,3 +78,7 @@ if __name__ == "__main__":
   two_components.insert_edge(5, 3, 1)
 
   print(connected_components(two_components))
+
+  graph_bfs = bfs(graph, 0)
+
+  print({f'{vertex} : {graph_bfs[vertex]}' for vertex in graph_bfs})
