@@ -4,23 +4,24 @@ from graph_adjacencymap import GraphAdjacencyMap
 #   visit each incident vertex and add it to vertices
 #   call dfs on that
 def dfs(graph, incoming_vertex):
-  def _dfs(graph, incoming_vertex, visited_vertices):
+  def _dfs(graph, incoming_vertex, visited_vertices, finishing_order):
     incident_vertices = graph.incident_edges(incoming_vertex)
 
     for outgoing_vertex in incident_vertices:
       if outgoing_vertex not in visited_vertices:
         visited_vertices[outgoing_vertex] = graph.get_edge(incoming_vertex, outgoing_vertex)
-        _dfs(graph, outgoing_vertex, visited_vertices)
+        finishing_order.append(outgoing_vertex)
+        _dfs(graph, outgoing_vertex, visited_vertices, finishing_order)
     
-    return visited_vertices
+    return { "visited_vertices": visited_vertices, "finishing_order": finishing_order }
 
-  return _dfs(graph, incoming_vertex, {incoming_vertex: None})
+  return _dfs(graph, incoming_vertex, {incoming_vertex: None}, [incoming_vertex])
 
 def connected_components(graph):
   components = []
 
   for vertex in graph.vertices():
-    if len(list(filter(lambda x: vertex in x, components))) == 0:
+    if len(list(filter(lambda x: vertex in x["visited_vertices"], components))) == 0:
       components.append(dfs(graph, vertex))
 
   return components
