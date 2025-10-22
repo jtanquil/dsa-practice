@@ -2,7 +2,97 @@ from adt import PriorityQueue
 from random import randint, seed
 from math import floor
 
-class Heap(PriorityQueue):
+class HeapNode():
+  def __init__(self, key, val = 0):
+    self.key = key
+    self.val = val
+
+  def __str__(self):
+    return f'{{ {self.key}: {self.val} }}'
+
+  def __eq__(self, other):
+    return self.val == other.val
+
+  def __neq__(self, other):
+    return self.val != other.val
+
+  def __lt__(self, other):
+    return self.val < other.val
+
+  def __leq__(self, other):
+    return self.val <= other.val
+
+  def __gt__(self, otheR):
+    return self.val > other.val
+
+  def __geq__(self, other):
+    return self.val >= other.val
+
+class MinHeap():
+  def __init__(self):
+    self._h = []
+
+  def __len__(self):
+    return len(self._h)
+
+  def is_empty(self):
+    return len(self._h) == 0
+
+  def get_min(self):
+    if not self.is_empty():
+      return self._h[0]
+    else:
+      return None
+
+  def build(self, iter):
+    self._h = []
+
+    for ele in iter:
+      self.insert(ele)
+
+    # append val to heap, then sift up:
+  # check if it satisfies max heap property. if it does, done
+  # otherwise, swap w/parent, sift up on parent index
+  def insert(self, val):
+    self._h.append(val)
+
+    self.min_sift_up(len(self._h) - 1)
+
+  def min_sift_up(self, index):
+    if index > 0:
+      parent = floor((index - 1) / 2)
+
+      if self._h[index] <= self._h[parent]:
+        self._h[index], self._h[parent] = self._h[parent], self._h[index]
+        self.min_sift_up(parent)
+
+  # reassign root w/value of the last element, then sift that element down
+  def delete_min(self):
+    self._h[0], self._h[len(self) - 1] = self._h[len(self._h) - 1], self._h[0]
+    min_element = self._h.pop()
+    self.min_sift_down(0)
+
+    return min_element
+
+  def min_sift_down(self, index):
+    left_child = 2 * index + 1
+    right_child = 2 * index + 2
+
+    if left_child < len(self) and self._h[index] > self._h[left_child]:
+      self._h[index], self._h[left_child] = self._h[left_child], self._h[index]
+      self.min_sift_down(left_child)
+
+    if right_child < len(self) and self._h[index] > self._h[right_child]:
+      self._h[index], self._h[right_child] = self._h[right_child], self._h[index]
+      self.min_sift_down(right_child)
+
+  def find_min(self, val):
+    return self._h[0]
+
+  def __str__(self):
+    return f'{self._h}'
+
+class MaxHeap(PriorityQueue):
   def __init__(self):
     self._h = []
 
@@ -12,7 +102,7 @@ class Heap(PriorityQueue):
   def is_empty(self):
     return len(self._h) == 0
 
-  def get_max(self, i):
+  def get_max(self):
     if not self.is_empty():
       return self._h[0]
     else:
@@ -123,7 +213,7 @@ class HeapSort():
 if __name__ == "__main__":
   seed(3413)
   test = [randint(0, 20) for i in range(10)]
-  test_heap = Heap()
+  test_heap = MaxHeap()
 
   print(test)
 
@@ -144,3 +234,15 @@ if __name__ == "__main__":
 
   print(test2)
 
+  test_min_heap = MinHeap()
+
+  print(test_min_heap)
+
+  for ele in test:
+    test_min_heap.insert(ele)
+
+  print(test_min_heap)
+
+  while len(test_min_heap) > 0:
+    print(test_min_heap.delete_min())
+    print(test_min_heap)
