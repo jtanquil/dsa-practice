@@ -19,13 +19,13 @@ class HeapNode():
   def __lt__(self, other):
     return self.val < other.val
 
-  def __leq__(self, other):
+  def __le__(self, other):
     return self.val <= other.val
 
-  def __gt__(self, otheR):
+  def __gt__(self, other):
     return self.val > other.val
 
-  def __geq__(self, other):
+  def __ge__(self, other):
     return self.val >= other.val
 
 class MinHeap():
