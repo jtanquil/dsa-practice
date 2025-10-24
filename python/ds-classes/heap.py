@@ -50,7 +50,7 @@ class MinHeap():
     for ele in iter:
       self.insert(ele)
 
-    # append val to heap, then sift up:
+  # append val to heap, then sift up:
   # check if it satisfies max heap property. if it does, done
   # otherwise, swap w/parent, sift up on parent index
   def insert(self, val):
@@ -90,7 +90,22 @@ class MinHeap():
     return self._h[0]
 
   def __str__(self):
-    return f'{self._h}'
+    return f'[{", ".join(f'{ele}' for ele in self._h)}]'
+
+# heap that allows for reassigning values; assumes heap nodes are used
+class MutableMinHeap(MinHeap):
+  def update(self, key, val):
+    for index in range(len(self)):
+      if self._h[index].key != key:
+        continue
+      else:
+        self._h[index].val = val
+        parent = floor((index - 1) / 2)
+
+        if index > 0 and self._h[index] < self._h[parent]:
+          self.min_sift_up(index)
+        else:
+          self.min_sift_down(index)
 
 class MaxHeap(PriorityQueue):
   def __init__(self):
@@ -154,7 +169,7 @@ class MaxHeap(PriorityQueue):
     return self._h[0]
 
   def __str__(self):
-    return f'{self._h}'
+    return f'[{", ".join(f'{ele}' for ele in self._h)}]'
 
 # implement in-place heapsort: maintain a prefix array
 # repeatedly insert the next element into the prefix w/append
@@ -234,15 +249,19 @@ if __name__ == "__main__":
 
   print(test2)
 
-  test_min_heap = MinHeap()
+  test_min_heap = MutableMinHeap()
 
   print(test_min_heap)
 
-  for ele in test:
-    test_min_heap.insert(ele)
+  for i in range(len(test)):
+    test_min_heap.insert(HeapNode(i, test[i]))
 
   print(test_min_heap)
 
-  while len(test_min_heap) > 0:
-    print(test_min_heap.delete_min())
-    print(test_min_heap)
+  test_min_heap.update(7, 7)
+
+  print(test_min_heap)
+
+  # while len(test_min_heap) > 0:
+  #   print(test_min_heap.delete_min())
+  #   print(test_min_heap)

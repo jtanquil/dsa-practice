@@ -1,21 +1,23 @@
-from heap import HeapNode, MinHeap
+from heap import HeapNode, MutableMinHeap
 from graph_adjacencymap import GraphAdjacencyMap
 
 def dijkstra(graph, vertex):
   dist = {}
-  vertex_heap = MinHeap()
+  vertex_heap = MutableMinHeap()
 
   for _vertex in graph.vertices():
     _vertex_node = HeapNode(_vertex, float('inf') if _vertex != vertex else 0)
-    dist[_vertex] = _vertex_node
+    dist[_vertex] = { 'node': _vertex_node, 'last_edge': None }
     vertex_heap.insert(_vertex_node)
 
   while len(vertex_heap) > 0:
+    print(vertex_heap)
     incoming_vertex = vertex_heap.delete_min().key
 
     for outgoing_vertex in graph.incident_edges(incoming_vertex):
-      if dist[outgoing_vertex].val > dist[incoming_vertex].val + graph.get_edge(incoming_vertex, outgoing_vertex).weight:
-        dist[outgoing_vertex].val = dist[incoming_vertex].val + graph.get_edge(incoming_vertex, outgoing_vertex).weight
+      if dist[outgoing_vertex]["node"].val > dist[incoming_vertex]["node"].val + graph.get_edge(incoming_vertex, outgoing_vertex).weight:
+        vertex_heap.update(outgoing_vertex, dist[incoming_vertex]["node"].val + graph.get_edge(incoming_vertex, outgoing_vertex).weight)
+        dist[outgoing_vertex]["last_edge"] = graph.get_edge(incoming_vertex, outgoing_vertex)
 
   return dist
 
@@ -55,4 +57,4 @@ if __name__ == "__main__":
   dijkstra_result = dijkstra(test, "BWI")
 
   for vertex in dijkstra_result:
-    print(dijkstra_result[vertex])
+    print(f'BWI to {vertex}, dist: {dijkstra_result[vertex]["node"].val}, last_edge: {dijkstra_result[vertex]["last_edge"]}')
