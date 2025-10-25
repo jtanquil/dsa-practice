@@ -1,24 +1,28 @@
 from heap import HeapNode, MutableMinHeap
 from graph_adjacencymap import GraphAdjacencyMap
 
-def dijkstra(graph, vertex):
-  dist = {}
+def prim_jarnik(graph, vertex):
+  edges = {}
   vertex_heap = MutableMinHeap()
 
   for _vertex in graph.vertices():
     _vertex_node = HeapNode(_vertex, float('inf') if _vertex != vertex else 0)
-    dist[_vertex] = { 'node': _vertex_node, 'last_edge': None }
     vertex_heap.insert(_vertex_node)
+    
+    edges[_vertex] = { 'node': _vertex_node, 'edge' : None }
 
   while len(vertex_heap) > 0:
     incoming_vertex = vertex_heap.delete_min().key
 
     for outgoing_vertex in graph.incident_edges(incoming_vertex):
-      if dist[outgoing_vertex]["node"].val > dist[incoming_vertex]["node"].val + graph.get_edge(incoming_vertex, outgoing_vertex).weight:
-        vertex_heap.update(outgoing_vertex, dist[incoming_vertex]["node"].val + graph.get_edge(incoming_vertex, outgoing_vertex).weight)
-        dist[outgoing_vertex]["last_edge"] = graph.get_edge(incoming_vertex, outgoing_vertex)
+      edge = graph.get_edge(incoming_vertex, outgoing_vertex)
+      is_already_in_edges = len([_vertex for _vertex in edges if edges[_vertex]["edge"] == edge]) > 0
 
-  return dist
+      if edges[outgoing_vertex]["node"].val > edge.weight and not is_already_in_edges:
+        vertex_heap.update(outgoing_vertex, edge.weight)
+        edges[outgoing_vertex]["edge"] = edge
+
+  return { _vertex: edges[_vertex]['edge'] for _vertex in edges if _vertex != vertex }
 
 if __name__ == "__main__":
   test = GraphAdjacencyMap()
@@ -53,7 +57,7 @@ if __name__ == "__main__":
   test.insert_edge("JFK", "MIA", 1090)
   test.insert_edge("BWI", "MIA", 946)
 
-  dijkstra_result = dijkstra(test, "BWI")
+  prim_jarnik_result = prim_jarnik(test, "PVD")
 
-  for vertex in dijkstra_result:
-    print(f'BWI to {vertex}, dist: {dijkstra_result[vertex]["node"].val}, last_edge: {dijkstra_result[vertex]["last_edge"]}')
+  for vertex in prim_jarnik_result:
+    print(f'PVD to {vertex}, edge: {prim_jarnik_result[vertex]}')
