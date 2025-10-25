@@ -16,7 +16,7 @@ def prim_jarnik(graph, vertex):
 
     for outgoing_vertex in graph.incident_edges(incoming_vertex):
       edge = graph.get_edge(incoming_vertex, outgoing_vertex)
-      is_already_in_edges = len([_vertex for _vertex in edges if edges[_vertex]["edge"] == edge]) > 0
+      is_already_in_edges = edges[incoming_vertex]["edge"] == edge or edges[outgoing_vertex]["edge"] == edge
 
       if edges[outgoing_vertex]["node"].val > edge.weight and not is_already_in_edges:
         vertex_heap.update(outgoing_vertex, edge.weight)
