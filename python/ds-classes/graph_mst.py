@@ -24,6 +24,35 @@ def prim_jarnik(graph, vertex):
 
   return { _vertex: edges[_vertex]['edge'] for _vertex in edges if _vertex != vertex }
 
+def kruskal(graph):
+  clusters = {}
+  edges = []
+  edge_heap = MutableMinHeap()
+
+  for vertex in graph.vertices():
+    clusters[vertex] = set()
+    clusters[vertex].add(vertex)
+
+  for edge in graph.edges():
+    edge_heap.insert(HeapNode(edge, edge.weight))
+
+  while len(edge_heap) > 0:
+    edge = edge_heap.delete_min().key
+
+    if clusters[edge.u] != clusters[edge.v]:
+      print(f'adding {edge}')
+      edges.append(edge)
+
+      clusters[edge.v] = clusters[edge.v].union(clusters[edge.u])
+
+      for vertex in clusters[edge.v]:
+        clusters[vertex] = clusters[edge.v]
+
+    if len(clusters[edge.v]) == len(graph.vertices()):
+      break
+
+  return edges
+
 if __name__ == "__main__":
   test = GraphAdjacencyMap()
 
@@ -61,3 +90,8 @@ if __name__ == "__main__":
 
   for vertex in prim_jarnik_result:
     print(f'PVD to {vertex}, edge: {prim_jarnik_result[vertex]}')
+
+  kruskal_result = kruskal(test)
+
+  for edge in kruskal_result:
+    print(f'edge: {edge}')
