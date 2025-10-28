@@ -1,28 +1,30 @@
 from heap import HeapNode, MutableMinHeap
 from graph_adjacencymap import GraphAdjacencyMap
 
-def prim_jarnik(graph, vertex):
+def prim_jarnik(graph):
   edges = {}
+  vertices = set()
   vertex_heap = MutableMinHeap()
-
+  
   for _vertex in graph.vertices():
-    _vertex_node = HeapNode(_vertex, float('inf') if _vertex != vertex else 0)
+    _vertex_node = HeapNode(_vertex, float('inf') if len(vertex_heap) > 0 else 0)
     vertex_heap.insert(_vertex_node)
     
     edges[_vertex] = { 'node': _vertex_node, 'edge' : None }
 
   while len(vertex_heap) > 0:
     incoming_vertex = vertex_heap.delete_min().key
-
+    vertices.add(incoming_vertex)
+    
     for outgoing_vertex in graph.incident_edges(incoming_vertex):
       edge = graph.get_edge(incoming_vertex, outgoing_vertex)
-      is_already_in_edges = edges[incoming_vertex]["edge"] == edge or edges[outgoing_vertex]["edge"] == edge
+      is_already_in_tree = outgoing_vertex in vertices # don't add if the incoming/outgoing pair is already represented
 
-      if edges[outgoing_vertex]["node"].val > edge.weight and not is_already_in_edges:
+      if edges[outgoing_vertex]["node"].val > edge.weight and not is_already_in_tree:
         vertex_heap.update(outgoing_vertex, edge.weight)
         edges[outgoing_vertex]["edge"] = edge
 
-  return { _vertex: edges[_vertex]['edge'] for _vertex in edges if _vertex != vertex }
+  return [ edges[vertex]["edge"] for vertex in edges if edges[vertex]["edge"] is not None ]
 
 def kruskal(graph):
   clusters = {}
@@ -40,7 +42,6 @@ def kruskal(graph):
     edge = edge_heap.delete_min().key
 
     if clusters[edge.u] != clusters[edge.v]:
-      print(f'adding {edge}')
       edges.append(edge)
 
       clusters[edge.v] = clusters[edge.v].union(clusters[edge.u])
@@ -86,12 +87,14 @@ if __name__ == "__main__":
   test.insert_edge("JFK", "MIA", 1090)
   test.insert_edge("BWI", "MIA", 946)
 
-  prim_jarnik_result = prim_jarnik(test, "PVD")
+  prim_jarnik_result = prim_jarnik(test)
 
-  for vertex in prim_jarnik_result:
-    print(f'PVD to {vertex}, edge: {prim_jarnik_result[vertex]}')
+  for edge in prim_jarnik_result:
+    print(f'edge: {edge}')
 
   kruskal_result = kruskal(test)
+
+  print("---")
 
   for edge in kruskal_result:
     print(f'edge: {edge}')
