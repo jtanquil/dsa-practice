@@ -139,3 +139,16 @@ class PriorityQueue(metaclass = ABCMeta):
   @abstractmethod
   def find_max(self):
     pass
+
+class Partition(metaclass = ABCMeta):
+  @abstractmethod
+  def make_group(self, x):
+    """Create a singleton group containing {x}, returning the position storing x"""
+
+  @abstractmethod
+  def union(self, p, q):
+    """Merge the groups containing positions p and q"""
+
+  @abstractmethod
+  def find(self, p):
+    """Return the position of the leader of the group containing position p"""
