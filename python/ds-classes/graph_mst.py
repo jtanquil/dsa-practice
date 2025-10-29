@@ -1,5 +1,6 @@
 from heap import HeapNode, MutableMinHeap
 from graph_adjacencymap import GraphAdjacencyMap
+from partition import SequencePartition
 
 def prim_jarnik(graph):
   edges = {}
@@ -27,13 +28,12 @@ def prim_jarnik(graph):
   return [ edges[vertex]["edge"] for vertex in edges if edges[vertex]["edge"] is not None ]
 
 def kruskal(graph):
-  clusters = {}
+  clusters = SequencePartition()
   edges = []
   edge_heap = MutableMinHeap()
 
   for vertex in graph.vertices():
-    clusters[vertex] = set()
-    clusters[vertex].add(vertex)
+    clusters.make_group(vertex)
 
   for edge in graph.edges():
     edge_heap.insert(HeapNode(edge, edge.weight))
@@ -41,15 +41,11 @@ def kruskal(graph):
   while len(edge_heap) > 0:
     edge = edge_heap.delete_min().key
 
-    if clusters[edge.u] != clusters[edge.v]:
+    if clusters.find(edge.u) != clusters.find(edge.v):
       edges.append(edge)
+      clusters.union(clusters.find(edge.u), clusters.find(edge.v))
 
-      clusters[edge.v] = clusters[edge.v].union(clusters[edge.u])
-
-      for vertex in clusters[edge.v]:
-        clusters[vertex] = clusters[edge.v]
-
-    if len(clusters[edge.v]) == len(graph.vertices()):
+    if clusters.num_clusters() == 1:
       break
 
   return edges

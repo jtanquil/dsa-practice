@@ -10,19 +10,21 @@ class Position:
 
 class SequencePartition(Partition):
   def __init__(self):
-    self.positions = []
+    self.positions = {}
     self.groups = {}
+
+  def num_clusters(self):
+    return len(self.groups.keys())
 
   def make_group(self, x):
     new_position = Position(x)
-    position_index = len(self.positions)
-    new_group = [position_index]
-    new_position.group = position_index
+    new_group = [x]
+    new_position.group = x
 
-    self.positions.append(new_position)
-    self.groups[position_index] = new_group
+    self.positions[x] = new_position
+    self.groups[x] = new_group
 
-    return position_index
+    return x
 
   def union(self, p, q):
     left = self.groups[self.positions[p].group]
@@ -47,7 +49,7 @@ class SequencePartition(Partition):
     return self.groups[self.positions[p].group][0]
 
   def __str__(self):
-    return f'positions: {", ".join([f'{position}' for position in self.positions])}\ngroups:\n{"\n".join([f'{group}: {", ".join([f'{position}' for position in self.groups[group]])}' for group in self.groups])}'
+    return f'positions: {", ".join([f'{self.positions[position]}' for position in self.positions])}\ngroups:\n{"\n".join([f'{group}: {", ".join([f'{position}' for position in self.groups[group]])}' for group in self.groups])}'
 
 if __name__ == "__main__":
   test = SequencePartition()
