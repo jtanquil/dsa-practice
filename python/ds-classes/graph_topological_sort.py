@@ -1,5 +1,5 @@
 from graph_adjacencymap import GraphAdjacencyMap
-from graph_traversal import dfs, connected_components
+from graph_traversal import dfs, connected_components, full_dfs
 
 def vertex_has_cycle(graph, starting_vertex):
   def _vertex_has_cycle(graph, incoming_vertex, visited_vertices, ancestors):
@@ -38,6 +38,7 @@ def topological_sort(graph):
   current_vertices = list(graph.vertices())
 
   while len(current_vertices) > 0:
+    print(current_vertices)
     for vertex in current_vertices:
       if vertex not in visited_vertices:
         adjusted_degree = graph.degree(vertex, out = False)
@@ -51,6 +52,47 @@ def topological_sort(graph):
           current_vertices.remove(vertex)
 
   return visited_vertices
+
+def get_transpose(graph):
+  transpose = GraphAdjacencyMap(is_directed = graph.is_directed())
+
+  for vertex in graph.vertices():
+    transpose.insert_vertex(vertex)
+
+  for edge in graph.edges():
+    transpose.insert_edge(edge.v, edge.u, edge.weight)
+
+  return transpose
+
+def get_strongly_connected_components(graph):
+  def strongly_connected_dfs_visit(graph, vertex, reverse_finishing_order):
+    def _strongly_connected_dfs_visit(graph, vertex, reverse_finishing_order, current_component):
+      vertices_to_visit = filter(lambda x: x in graph.incident_edges(vertex), reverse_finishing_order)
+
+      for outgoing_vertex in vertices_to_visit:
+        if outgoing_vertex not in current_component:
+          return _strongly_connected_dfs_visit(graph, outgoing_vertex, reverse_finishing_order, current_component + [outgoing_vertex])
+
+      return current_component
+
+    return _strongly_connected_dfs_visit(graph, vertex, reverse_finishing_order, [vertex])
+
+  full_dfs_graph = full_dfs(graph)
+  reverse_finishing_order = [vertex for vertex in full_dfs_graph]
+  reverse_finishing_order.sort(reverse = True, key = lambda vertex: full_dfs_graph[vertex]["finishing_time"])
+
+  transpose = get_transpose(graph)
+  components = []
+  
+  while len(reverse_finishing_order) > 0:
+    component = strongly_connected_dfs_visit(transpose, reverse_finishing_order[0], reverse_finishing_order)
+    components.append(component)
+    
+    for vertex in component:
+      if vertex in reverse_finishing_order:
+        reverse_finishing_order.remove(vertex)
+  
+  return components
 
 if __name__ == "__main__":
   no_cycle = GraphAdjacencyMap(is_directed = True)
@@ -92,3 +134,25 @@ if __name__ == "__main__":
 
   print(connected_components(sort_test))
   print(topological_sort(sort_test))
+
+  strongly_connected_component_test = GraphAdjacencyMap(is_directed = True)
+
+  for letter in ["A", "B", "C", "D", "E", "F", "G", "H"]:
+    strongly_connected_component_test.insert_vertex(letter)
+
+  strongly_connected_component_test.insert_edge("A", "B", 1)
+  strongly_connected_component_test.insert_edge("B", "C", 1)
+  strongly_connected_component_test.insert_edge("B", "E", 1)
+  strongly_connected_component_test.insert_edge("B", "F", 1)
+  strongly_connected_component_test.insert_edge("C", "D", 1)
+  strongly_connected_component_test.insert_edge("C", "G", 1)
+  strongly_connected_component_test.insert_edge("D", "C", 1)
+  strongly_connected_component_test.insert_edge("D", "H", 1)
+  strongly_connected_component_test.insert_edge("E", "A", 1)
+  strongly_connected_component_test.insert_edge("E", "F", 1)
+  strongly_connected_component_test.insert_edge("F", "G", 1)
+  strongly_connected_component_test.insert_edge("G", "F", 1)
+  strongly_connected_component_test.insert_edge("G", "H", 1)
+  strongly_connected_component_test.insert_edge("H", "H", 1)
+
+  print(get_strongly_connected_components(strongly_connected_component_test))

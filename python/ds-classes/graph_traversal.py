@@ -1,4 +1,5 @@
 from graph_adjacencymap import GraphAdjacencyMap
+from partition import SequencePartition
 
 # for each vertex in incident edges:
 #   visit each incident vertex and add it to vertices
@@ -17,9 +18,35 @@ def dfs(graph, incoming_vertex):
 
   return _dfs(graph, incoming_vertex, {incoming_vertex: None}, [incoming_vertex])
 
+# full dfs w/trailing edge, finishing times
+def full_dfs(graph):
+  def dfs_visit(graph, vertex, time):
+    time += 1
+    depth_first_tree[vertex]["starting_time"] = time
+    depth_first_tree[vertex]["color"] = "gray"
+
+    for outgoing_vertex in graph.incident_edges(vertex):
+      if depth_first_tree[outgoing_vertex]["color"] == "white":
+        depth_first_tree[outgoing_vertex]["predecessor_edge"] = graph.get_edge(vertex, outgoing_vertex)
+        time = dfs_visit(graph, outgoing_vertex, time)
+
+    depth_first_tree[vertex]["color"] = "black"
+    time += 1
+    depth_first_tree[vertex]["finishing_time"] = time
+    return time
+
+  depth_first_tree = { vertex: { "color": "white", "predecessor_edge": None, "starting_time": 0, "finishing_time": 0 } for vertex in graph.vertices()}
+  time = 0
+
+  for vertex in depth_first_tree:
+    if depth_first_tree[vertex]["color"] == "white":
+      time = dfs_visit(graph, vertex, time)
+
+  return depth_first_tree
+
 def connected_components(graph):
   components = []
-
+  
   for vertex in graph.vertices():
     if len(list(filter(lambda x: vertex in x["visited_vertices"], components))) == 0:
       components.append(dfs(graph, vertex))
@@ -60,6 +87,8 @@ if __name__ == "__main__":
   graph.insert_edge(4, 3, 1)
 
   print(graph)
+
+  print("dfs:")
   
   for i in range(5):
     visited = dfs(graph, i)
@@ -78,8 +107,26 @@ if __name__ == "__main__":
   two_components.insert_edge(4, 5, 1)
   two_components.insert_edge(5, 3, 1)
 
+  print("connected components:")
   print(connected_components(two_components))
 
   graph_bfs = bfs(graph, 0)
 
   print({f'{vertex} : {graph_bfs[vertex]}' for vertex in graph_bfs})
+
+  full_dfs_test = GraphAdjacencyMap(is_directed = True)
+
+  for vertex in ["u", "v", "w", "x", "y", "z"]:
+    full_dfs_test.insert_vertex(vertex)
+
+  full_dfs_test.insert_edge("u", "v", 1)
+  full_dfs_test.insert_edge("u", "x", 1)
+  full_dfs_test.insert_edge("v", "y", 1)
+  full_dfs_test.insert_edge("v", "y", 1)
+  full_dfs_test.insert_edge("y", "x", 1)
+  full_dfs_test.insert_edge("x", "v", 1)
+  full_dfs_test.insert_edge("w", "y", 1)
+  full_dfs_test.insert_edge("w", "z", 1)
+  full_dfs_test.insert_edge("z", "z", 1)
+
+  print(full_dfs(full_dfs_test))
